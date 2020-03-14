@@ -10,3 +10,7 @@ Main entities:
 
 Why?
 ---
+
+Command
+---
+/api npm init
