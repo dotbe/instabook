@@ -21,18 +21,17 @@ db.authenticate()
     .catch(err => console.error('ERROR', err));
 
 console.log("File: ", Object.keys(File.tableAttributes))
-const app = express();
-const tools = new Tools();
-app.use(bodyParser.json());
+const app = express()
+const tools = new Tools()
+app.use(bodyParser.json())
 
 app.get("/", (req, res) => res.json(File))
 
-
 app.get('/api/files/:fileId?', (req, res) => {
-    tools.restFind(File, req, res);
+    tools.restFind(File, req, res)
 });
 app.post('/api/files', (req, res) => {
-    tools.restCreate( File, req, res);
+    tools.restCreate( File, req, res)
 });
 app.put('/api/files/:fileId?', (req, res) => {
     tools.restUpdate(File, req , res);

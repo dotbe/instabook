@@ -16,6 +16,7 @@ Why?
 
 First setup
 ---
+```
 /api>npm init
 /api>npm i express sequelize mysql2 joi express-handlebars body-parser
 /api>npm i -D nodemon
@@ -27,6 +28,7 @@ First setup
     }
 /api>npm sequelize init
 /api>npm run dev
+```
 
 Status
 ---
