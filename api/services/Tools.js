@@ -1,14 +1,15 @@
-const Joi = require('joi');
+//const Joi = require('joi');
+const { Op } = require("sequelize");
 
 class Tools {
-    validate(entity, values) {
-        const validation = Joi.validate(values, entity.schema);
-        if (validation.error) {
-            res.status(400).send(validation.error.details[0].message);
-            return false;
-        }
-        return true;
-    }
+    // validate(entity, values) {
+    //     const validation = Joi.validate(values, entity.schema);
+    //     if (validation.error) {
+    //         res.status(400).send(validation.error.details[0].message);
+    //         return false;
+    //     }
+    //     return true;
+    // }
     errorHandler(entity, err, resp) {
         resp.message = err.message
         resp.status = 500
@@ -27,11 +28,11 @@ class Tools {
         }
         return msg
     }
-    async find(entity, criteria) {
-        console.log("criteria**", criteria)
+    async find(entity, params) {
+        console.log("criteria**", params)
         let resp = { status: 200, message: "Success", data: null };
-        if (criteria[entity.primaryKeyAttributes]) {
-            await entity.findByPk(criteria[entity.primaryKeyAttributes])
+        if (params[entity.primaryKeyAttributes]) {
+            await entity.findByPk(params[entity.primaryKeyAttributes])
                 .then((result) => {
                     if (result && result.dataValues) resp.data = result.dataValues;
                     else {
@@ -42,37 +43,123 @@ class Tools {
                 .catch(err => this.errorHandler(entity, err, resp))
         }
         else {
-            // build where clause
-            /*
-                criteria:
-                    grid.sort=field asc,...
-                    grid.max=100
-                    grid.page=1
-                    grid.pages=10
-                    grid.count=200
-                    
-                    AND...
-                    eq.any: exact search all fields string/number
-                    start.any:  start with in all fields (string only)
-                    find.any: contain in all fields (string only)
-
-                    eq.field: exact search
-                    start.field: start with (string only)
-                    find.field: contain (string only)
-
-                    lt.field: value less than (date, number)
-                    lte.field: value less than or equal (date, number)
-                    gt.field
-                    gte.field
-
-                    in.field: list of values
-                    
-            */
-            await entity.findAll()
-                .then(result => resp.data = result)
+            const parameters = this.parseParams(params)
+            const where = this.where(entity, parameters.filters)
+            console.log("parameters**", parameters)
+            if (parameters.grid.count) {
+                parameters.grid.records = await entity.count({ where: { [Op.and]: where } })
+            }
+            await entity.findAll({ where: { [Op.and]: where } })
+                .then(result => {
+                    resp.data = result;
+                    resp.parameters = parameters
+                })
                 .catch(err => this.errorHandler(entity, err, resp))
         }
         return resp;
+    }
+    parseParams(params) {
+        // grid.sort=field asc,...
+        // grid.max=100
+        // grid.page=1
+        // grid.pages=10
+        // grid.records=200
+        // grid.count = true/false
+        let result = {
+            grid: {
+                sort: "createdAt",
+                max: 10000,
+                page: 1,
+                count: true
+            },
+            filters: {}
+        }
+        for (let param in params) {
+            const aParam = param.split(".");
+            if (aParam.length == 2) {
+                switch (aParam[0]) {
+                    case "grid":
+                        result.grid[aParam[1]] = params[param]
+                        break
+                    default:
+                        result.filters[aParam[0]] = { operator: aParam[1], value: params[param] }
+                }
+            }
+        }
+        return result
+    }
+    where(entity, filters) {
+        // build where clause
+        /*
+                any.eq=xx: exact search all fields string/number
+                any.start=xx:  start with in all fields (string only)
+                any.like=xx: contain in all fields (string only)
+                
+                field.eq=xx: exact search
+                field.neq=xx: not eq
+                field.is=null/notnull/true/false
+ 
+                ** string **
+                field.start=xxx: start with (string only)
+                field.like=xxx: contain (string only)
+ 
+                ** number and date ** 
+                field.lt/lte/gt/gte: value <, <=, >, >= than (date, number)
+        */
+        let result = {}
+        console.log("***", filters)
+        for (const field in filters) {
+            if (entity.rawAttributes[field]) {
+                switch (filters[field].operator) {
+                    case "start":
+                        result[field] = { [Op.like]: filters[field].value + "%" }
+                        break
+                    case "like":
+                        result[field] = { [Op.like]: "%" + filters[field].value + "%" }
+                        break
+                    case "is":
+                        switch (filters[field].value) {
+                            case "null":
+                                result[field] = { [Op.is]: null }
+                                break
+                            case "notnull":
+                                result[field] = { [Op.not]: null }
+                                break
+                            case "true", true:
+                                result[field] = { [Op.is]: true }
+                                break
+                            case "false", false:
+                                result[field] = { [Op.is]: false }
+                                break
+                        }
+                        break
+                    case "between":
+                        const vals = filters[field].value.split(",")
+                        // console.log("vals", vals, entity.rawAttributes[field].type)
+                        if (entity.rawAttributes[field].type.toString().search("DATE") >= 0) {
+                            vals[0] = vals[0].length>0?new Date(vals[0]):""
+                            vals[1] = vals[1].length>0?new Date(vals[1]):""
+                        }
+                        if (vals.length == 2) {
+                            if (vals[0].toString().length > 0 && vals[1].toString().length > 0) {
+
+                                result[field] = { [Op.between]: [vals[0], davals[1]] }
+                            }
+                            else if (vals[0].toString().length > 0) {
+                                result[field] = { [Op.gte]: vals[0] }
+                            }
+                            else {
+                                result[field] = { [Op.lte]: vals[1] }
+                            }
+                        }
+                        break
+                    default: // eq, ne, lt, lte, gt, gte, like, notLike
+                        result[field] = { [Op[filters[field].operator]]: filters[field].value }
+                }
+            }
+        }
+        // console.log("where**", result)
+        return result
     }
     async restFind(entity, req, res) {
         let resp = await this.find(entity, { ...req.body, ...req.params, ...req.query })
