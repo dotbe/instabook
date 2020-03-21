@@ -45,11 +45,14 @@ class Tools {
         else {
             const parameters = this.parseParams(params)
             const where = this.where(entity, parameters.filters)
-            console.log("parameters**", parameters)
+            console.log("parameters**", parameters, entity.order)
             if (parameters.grid.count) {
                 parameters.grid.records = await entity.count({ where: { [Op.and]: where } })
             }
-            await entity.findAll({ where: { [Op.and]: where } })
+            await entity.findAll({
+                where: { [Op.and]: where },
+                order: this.order(entity, parameters.grid.order)
+            }) 
                 .then(result => {
                     resp.data = result;
                     resp.parameters = parameters
@@ -59,7 +62,7 @@ class Tools {
         return resp;
     }
     parseParams(params) {
-        // grid.sort=field asc,...
+        // grid.order=field asc,...
         // grid.max=100
         // grid.page=1
         // grid.pages=10
@@ -67,7 +70,7 @@ class Tools {
         // grid.count = true/false
         let result = {
             grid: {
-                sort: "createdAt",
+                order: null,
                 max: 10000,
                 page: 1,
                 count: true
@@ -88,6 +91,20 @@ class Tools {
         }
         return result
     }
+    order(entity, order) {
+        // order "field, otherfield desc
+        let result = []
+        if (order) {
+            order.split(",").forEach(o => {
+                let a = o.split(" ")
+                result.push([a[0], a.length > 1 ? a[1] : "ASC"])
+            })
+            return result
+        }
+        else if (entity.options.order) return entity.options.order
+        return null
+
+    }
     where(entity, filters) {
         // build where clause
         /*
@@ -107,7 +124,7 @@ class Tools {
                 field.lt/lte/gt/gte: value <, <=, >, >= than (date, number)
         */
         let result = {}
-        console.log("***", filters)
+        // console.log("***", filters)
         for (const field in filters) {
             if (entity.rawAttributes[field]) {
                 switch (filters[field].operator) {
@@ -137,12 +154,11 @@ class Tools {
                         const vals = filters[field].value.split(",")
                         // console.log("vals", vals, entity.rawAttributes[field].type)
                         if (entity.rawAttributes[field].type.toString().search("DATE") >= 0) {
-                            vals[0] = vals[0].length>0?new Date(vals[0]):""
-                            vals[1] = vals[1].length>0?new Date(vals[1]):""
+                            vals[0] = vals[0].length > 0 ? new Date(vals[0]) : ""
+                            vals[1] = vals[1].length > 0 ? new Date(vals[1]) : ""
                         }
                         if (vals.length == 2) {
                             if (vals[0].toString().length > 0 && vals[1].toString().length > 0) {
-
                                 result[field] = { [Op.between]: [vals[0], davals[1]] }
                             }
                             else if (vals[0].toString().length > 0) {

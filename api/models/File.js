@@ -35,7 +35,8 @@ const File = db.define('file',
         }
     },
     {
-        freezeTableName: true
+        freezeTableName: true,
+        order: [["fileName" ,"ASC"]]
     }
 );
 
@@ -43,10 +44,4 @@ console.log("File.tableName*", File.tableName)
 console.log("File.primaryKeyAttributes*", File.primaryKeyAttributes)
 console.log("File.rawAttributes*", File.rawAttributes)
 
-
-File.schema = {
-    fileId: Joi.string().guid(),
-    fileName: Joi.string().min(3).max(50).required(),
-    fileVAT: Joi.string()
-}
 module.exports = File;
