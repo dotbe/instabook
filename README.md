@@ -14,6 +14,48 @@ Main entities:
 Why?
 ---
 
+SequelizeHelper
+---
+A tool to simplify usage of Sequelize
+
+Add parameters to select records (in request.body or .params or .query):
+- "grid.order": field asc,...
+- "grid.max": 100
+- "grid.page": 1
+- "grid.count": true/false
+- "field.eq": xx: exact search
+- "field.neq": xx: not eq
+- "field.is": null/notnull/true/false
+- "field.start" :xxx: start with (string only)
+- "field.like": xxx: contain (string only)
+- "field.lt/lte/gt/gte": value <, <=, >, >= than (date, number)
+- "field.between": value1,value2 (date, number)
+
+Helper checks field name validity
+
+Example URL:
+```
+    {{baseurl}}api/files?fileName.start=Hello&fileVAT.is=null&updatedAt.between=2020-03-21,
+```
+
+Example:
+```
+    const helper = new SequelizeHelper()
+    app.get('/api/docs/:docId?', (req, res) => {
+        helper.restFind(Doc, req, res)
+    });
+    app.post('/api/docs', (req, res) => {
+        helper.restCreate(Doc, req, res)
+    });
+    app.put('/api/docs/:docId?', (req, res) => {
+        helper.restUpdate(Doc, req, res)
+    });
+    app.delete('/api/docs/:docId', (req, res) => {
+        helper.restDelete(Doc, req, res)
+    });
+```
+
+
 First setup
 ---
 ```
