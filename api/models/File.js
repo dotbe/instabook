@@ -6,7 +6,7 @@ const File = db.define('file',
             primaryKey: true,
             validate: {
                 notEmpty: {
-                    msg: "File ID is required"
+                    msg: "ID is required"
                 }
             }
         },
@@ -36,12 +36,14 @@ const File = db.define('file',
     },
     {
         freezeTableName: true,
-        order: [["fileName" ,"ASC"]]
+        order: [["fileName" ,"ASC"]],
+       
     }
 );
 
-console.log("File.tableName*", File.tableName)
-console.log("File.primaryKeyAttributes*", File.primaryKeyAttributes)
-console.log("File.rawAttributes*", File.rawAttributes)
 
+console.log("File.table*", File.tableName)
+console.log("File.PK*", File.primaryKeyAttributes)
+//console.log("File.fields*", File.rawAttributes)
+global.File = File;
 module.exports = File;

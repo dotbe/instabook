@@ -1,15 +1,6 @@
-//const Joi = require('joi');
 const { Op } = require("sequelize");
 
-class Tools {
-    // validate(entity, values) {
-    //     const validation = Joi.validate(values, entity.schema);
-    //     if (validation.error) {
-    //         res.status(400).send(validation.error.details[0].message);
-    //         return false;
-    //     }
-    //     return true;
-    // }
+class SequelizeHelper {
     errorHandler(entity, err, resp) {
         resp.message = err.message
         resp.status = 500
@@ -31,8 +22,9 @@ class Tools {
     async find(entity, params) {
         console.log("criteria**", params)
         let resp = { status: 200, message: "Success", data: null };
+        const parameters = this.parseParams(params)
         if (params[entity.primaryKeyAttributes]) {
-            await entity.findByPk(params[entity.primaryKeyAttributes])
+            await entity.findByPk(params[entity.primaryKeyAttributes], parameters.findAttr)
                 .then((result) => {
                     if (result && result.dataValues) resp.data = result.dataValues;
                     else {
@@ -43,16 +35,18 @@ class Tools {
                 .catch(err => this.errorHandler(entity, err, resp))
         }
         else {
-            const parameters = this.parseParams(params)
+           
             const where = this.where(entity, parameters.filters)
-            console.log("parameters**", parameters, entity.order)
+            // console.log("parameters**", parameters, entity.order)
             if (parameters.grid.count) {
                 parameters.grid.records = await entity.count({ where: { [Op.and]: where } })
             }
             await entity.findAll({
+                ...parameters.findAttr,
                 where: { [Op.and]: where },
-                order: this.order(entity, parameters.grid.order)
-            }) 
+                order: this.order(entity, parameters.grid.order),
+                //attributes: {exclude: ['createdAt', 'updatedAt']}
+            })
                 .then(result => {
                     resp.data = result;
                     resp.parameters = parameters
@@ -69,6 +63,7 @@ class Tools {
         // grid.records=200
         // grid.count = true/false
         let result = {
+            findAttr: {},
             grid: {
                 order: null,
                 max: 10000,
@@ -77,6 +72,7 @@ class Tools {
             },
             filters: {}
         }
+        if (params.findAttr) result.findAttr = params.findAttr
         for (let param in params) {
             const aParam = param.split(".");
             if (aParam.length == 2) {
@@ -183,7 +179,7 @@ class Tools {
     }
     async create(entity, values) {
         let resp = { status: 200, message: "Success", data: null };
-        this.removeUnknown(entity, values);
+        this.dataCleaning(entity, values);
         await entity.create(values)
             .then(result => resp.data = result)
             .catch(err => this.errorHandler(entity, err, resp));
@@ -196,7 +192,7 @@ class Tools {
     }
     async update(entity, values) {
         let resp = { status: 200, message: "Success", data: null };
-        this.removeUnknown(entity, values);
+        this.dataCleaning(entity, values);
         const id = values[entity.primaryKeyAttributes];
         const where = { [entity.primaryKeyAttributes]: id };
         this.removePK(entity, values)
@@ -236,11 +232,14 @@ class Tools {
         let resp = await this.delete(entity, values)
         res.status(resp.status).json(resp);
     }
-    removeUnknown(entity, data) {
+    dataCleaning(entity, data) {
+        // clean data for insert or update
         for (const prop in data) {
+            //console.log("****",prop,"=",data[prop], data[prop] === "")
             if (prop in entity.rawAttributes == false) {
                 delete data[prop]
             }
+            else if (data[prop] === "") data[prop] = null
         }
     }
     removePK(entity, data) {
@@ -248,4 +247,4 @@ class Tools {
     }
 };
 
-module.exports = Tools;
+module.exports = SequelizeHelper;

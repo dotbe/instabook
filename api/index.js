@@ -1,55 +1,80 @@
-const express = require('express');
-
-const Joi = require('joi');
-const Sequelize = require('Sequelize');
-
-const exphbs = require('express-handlebars');
-const bodyParser = require('body-parser');
-const path = require('path');
+const express = require('express')
+const Sequelize = require('Sequelize')
 const util = require('util')
+const bodyParser = require('body-parser')
 
-global.Joi = Joi;
 global.Sequelize = Sequelize;
 global.util = util;
 
-const db = require('./config/db');
-const Tools = require('./services/Tools');
-const File = require('./models/File');
+const db = require('./config/db')
+const SequelizeHelper = require('./services/SequelizeHelper')
 
 db.authenticate()
     .then(() => console.log('DB authenticated'))
-    .catch(err => console.error('ERROR', err));
+    .catch(err => console.error('ERROR', err))
 
-console.log("File: ", Object.keys(File.tableAttributes))
 const app = express()
-const tools = new Tools()
+const helper = new SequelizeHelper()
 app.use(bodyParser.json())
 
 app.get("/", (req, res) => res.json(File))
 
+// FILE
 app.get('/api/files/:fileId?', (req, res) => {
-    tools.restFind(File, req, res)
+    req.params.findAttr = {include: Doc}
+    helper.restFind(File, req, res)
 });
 app.post('/api/files', (req, res) => {
-    tools.restCreate( File, req, res)
+    helper.restCreate(File, req, res)
 });
 app.put('/api/files/:fileId?', (req, res) => {
-    tools.restUpdate(File, req , res);
+    helper.restUpdate(File, req, res)
 });
 app.delete('/api/files/:fileId', (req, res) => {
-    tools.restDelete(File, req , res);
+    helper.restDelete(File, req, res)
 });
 
+// DOC
+app.get('/api/docs/:docId?', (req, res) => {
+    helper.restFind(Doc, req, res)
+});
+app.post('/api/docs', (req, res) => {
+    helper.restCreate(Doc, req, res)
+});
+app.put('/api/docs/:docId?', (req, res) => {
+    helper.restUpdate(Doc, req, res)
+});
+app.delete('/api/docs/:docId', (req, res) => {
+    helper.restDelete(Doc, req, res)
+});
 
-app.get('/api/docs/', (req, res) => res.send(req.query));
-app.get('/api/docs/:docId', (req, res) => res.send(req.params));
+// JNL
+app.get('/api/jnls/:jnlId?', (req, res) => {
+    helper.restFind(Jnl, req, res)
+});
+app.post('/api/jnls', (req, res) => {
+    helper.restCreate(Jnl, req, res)
+});
+app.put('/api/jnls/:jnlId?', (req, res) => {
+    helper.restUpdate(Jnl, req, res)
+});
+app.delete('/api/jnls/:jnlId', (req, res) => {
+    helper.restDelete(Jnl, req, res)
+});
 
-app.get('/api/jnls/', (req, res) => res.send(req.query));
-app.get('/api/jnls/:jnlId', (req, res) => res.send(req.params));
+// ACC
+app.get('/api/accs/:accId?', (req, res) => {
+    helper.restFind(Acc, req, res)
+});
+app.post('/api/accs', (req, res) => {
+    helper.restCreate(Acc, req, res)
+});
+app.put('/api/accs/:accId?', (req, res) => {
+    helper.restUpdate(Acc, req, res)
+});
+app.delete('/api/accs/:accId', (req, res) => {
+    helper.restDelete(Acc, req, res)
+});
 
-app.get('/api/accounts/', (req, res) => res.send(req.query));
-app.get('/api/accounts/:accId', (req, res) => res.send(req.params));
-
-const port = process.env.PORT || 5000;
-
-app.listen(port, console.log(`server started on port ${port}`));
+const port = process.env.PORT || 5000
+app.listen(port, console.log(`server started on port ${port}`))
