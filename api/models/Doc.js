@@ -1,15 +1,10 @@
 const Doc = db.define('doc',
     {
-        docId: {
+        id: {
             label: "Document ID",
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
-            validate: {
-                notEmpty: {
-                    msg: "Document ID is required"
-                }
-            }
         },
         fileId: {
             label: "File",
@@ -31,7 +26,7 @@ const Doc = db.define('doc',
                 }
             }
         },
-        docRef: {
+        ref: {
             label: "Reference",
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -43,7 +38,7 @@ const Doc = db.define('doc',
             }
         },
 
-        docDate: {
+        regDate: {
             label: "File Name",
             type: Sequelize.DATEONLY,
             allowNull: false,
@@ -57,7 +52,7 @@ const Doc = db.define('doc',
     },
     {
         freezeTableName: true,
-        order: [["docRef", "ASC"]]
+        order: [["regDate", "ASC"]]
     }
 );
 

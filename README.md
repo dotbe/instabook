@@ -35,7 +35,28 @@ Helper checks field name validity
 
 Example URL:
 ```
-    {{baseurl}}api/files?fileName.start=Hello&fileVAT.is=null&updatedAt.between=2020-03-21,
+    {{baseurl}}api/files?name.start=Hello&taxRef.is=null&updatedAt.between=2020-03-21,
+    {{baseurl}}api/files?name.start=Hello&taxRef.is=null&updatedAt.between=2020-03-21,&grid.order=name asc
+```
+returns a structure
+```
+{
+    "status": 200, // or 500 or 404
+    "message": "Success", // or "Not Found" or and error message
+    "data": [], // search result
+    "parameters": { // parameter 
+        "findAttr": {}, // attributes injected in the find() method
+        "grid": {
+            "order": null, // sort order as a string
+            "max": 10000, // max result
+            "page": 1,
+            "count": true, // do count and set "records" values
+            "records": 19 // number of records if count is true
+            "pages": 1
+        },
+        "filters": {}
+    }
+}
 ```
 
 Example:
@@ -71,11 +92,6 @@ First setup
 /api>npm sequelize init
 /api>npm run dev
 ```
-
-Status
----
-- 404 not found
-- 500 error
 
 Tips
 ---

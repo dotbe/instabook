@@ -1,17 +1,12 @@
 const Acc = db.define('Acc',
     {
-        accId: {
+        id: {
             label: "Account ID",
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
-            validate: {
-                notEmpty: {
-                    msg: "Account ID is required"
-                }
-            }
         },
-        accCode: {
+        code: {
             label: "Account Code",
             type: Sequelize.STRING(50),
             allowNull: false,
@@ -21,7 +16,7 @@ const Acc = db.define('Acc',
                 }
             }
         },
-        accName: {
+        name: {
             label: "Account Name",
             type: Sequelize.STRING(50),
             allowNull: false,
@@ -31,7 +26,7 @@ const Acc = db.define('Acc',
                 }
             }
         },
-        accActive: {
+        active: {
             label: "Account Active",
             type: Sequelize.BOOLEAN,
             allowNull: false,
@@ -44,7 +39,7 @@ const Acc = db.define('Acc',
     },
     {
         freezeTableName: true,
-        order: [["accId" ,"ASC"]]
+        order: [["code" ,"ASC"]]
     }
 );
 

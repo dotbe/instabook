@@ -1,16 +1,11 @@
 const File = db.define('file',
     {
-        fileId: {
+        id: {
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
-            validate: {
-                notEmpty: {
-                    msg: "ID is required"
-                }
-            }
         },
-        fileName: {
+        name: {
             label: "File Name",
             type: Sequelize.STRING(50),
             allowNull: false,
@@ -22,21 +17,21 @@ const File = db.define('file',
                 }
             }
         },
-        fileVAT: {
+        taxRef: {
             type: Sequelize.STRING(50),
             unique: true,
             defaultValue: null,
             validate: {
                 len: {
                     args: [3, 20],
-                    msg: "VAT must be between 3 and 20"
+                    msg: "Tax Reference must be between 3 and 20"
                 }
             }
         }
     },
     {
         freezeTableName: true,
-        order: [["fileName" ,"ASC"]],
+        order: [["name" ,"ASC"]],
        
     }
 );

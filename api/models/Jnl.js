@@ -1,17 +1,12 @@
 const Jnl = db.define('jnl',
     {
-        jnlId: {
+        id: {
             label: "Journal ID",
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
-            validate: {
-                notEmpty: {
-                    msg: "Journal ID is required"
-                }
-            }
         },
-        jnlName: {
+        name: {
             label: "Journal Name",
             type: Sequelize.STRING(50),
             allowNull: false,
@@ -21,7 +16,7 @@ const Jnl = db.define('jnl',
                 }
             }
         },
-        jnlActive: {
+        active: {
             label: "Journal Active",
             type: Sequelize.BOOLEAN,
             allowNull: false,
@@ -31,7 +26,7 @@ const Jnl = db.define('jnl',
                 }
             }
         },
-        jnlType: {
+        type: {
             label: "Reference",
             type: Sequelize.ENUM("BUY", "SELL", "FINANCE", "DIVERSE"),
             allowNull: false,
@@ -45,7 +40,7 @@ const Jnl = db.define('jnl',
     },
     {
         freezeTableName: true,
-        order: [["jnlType" ,"ASC"], ["jnlName" ,"ASC"]]
+        order: [["type" ,"ASC"], ["nName" ,"ASC"]]
     }
 );
 

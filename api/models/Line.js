@@ -1,15 +1,10 @@
 const Line = db.define('line',
     {
-        lineId: {
+        id: {
             label: "Line ID",
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
-            validate: {
-                notEmpty: {
-                    msg: "Line ID is required"
-                }
-            }
         },
         docId: {
             label: "Document ID",
@@ -31,12 +26,12 @@ const Line = db.define('line',
                 }
             }
         },
-        lineName: {
+        name: {
             label: "Label",
             type: Sequelize.STRING(50),
             allowNull: true
         },
-        lineAmount: {
+        amount: {
             label: "Amount",
             type: Sequelize.FLOAT,
             allowNull: false,
@@ -46,7 +41,7 @@ const Line = db.define('line',
                 }
             }
         },
-        lineIndex: {
+        i: {
             label: "Index",
             type: Sequelize.INTEGER,
             allowNull: false,
@@ -54,7 +49,7 @@ const Line = db.define('line',
     },
     {
         freezeTableName: true,
-        order: [["lineIndex" ,"ASC"]]
+        order: [["i" ,"ASC"]]
     }
 );
 
