@@ -42,10 +42,10 @@ const Jnl = db.define('jnl',
         freezeTableName: true,
         order: [["type" ,"ASC"], ["nName" ,"ASC"]]
     }
-);
+)
 
 console.log("Jnl.table*", Jnl.tableName)
 console.log("Jnl.PK*", Jnl.primaryKeyAttributes)
 // console.log("Jnl.fiels*", Jnl.rawAttributes)
-global.Jnl = Jnl;
-module.exports = Jnl;
+global.Jnl = Jnl
+module.exports = Jnl

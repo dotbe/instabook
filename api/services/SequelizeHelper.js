@@ -1,59 +1,61 @@
-const { Op } = require("sequelize");
+const { Op } = require("sequelize")
 
 class SequelizeHelper {
-    errorHandler(entity, err, resp) {
+    constructor(entity){
+        this.entity = entity
+    }
+    errorHandler(err, resp) {
         resp.message = err.message
         resp.status = 500
-        if (err.original && err.original.sqlMessage) resp.message += ": " + err.original.sqlMessage;
-        resp.message = "Error! " + this.fieldLabel(entity, resp.message)
-        console.error("*ERROR*", new Date(), "\n", err);
+        if (err.original && err.original.sqlMessage) resp.message += ": " + err.original.sqlMessage
+        resp.message = "Error! " + this.fieldToLabel(resp.message)
+        console.error("*ERROR*", new Date(), "\n", err)
     }
-    fieldLabel(entity, msg) {
-        if (!msg.includes(entity.tableName + ".")) return msg
+    fieldToLabel(msg) {
+        if (!msg.includes(this.entity.tableName + ".")) return msg
         // improve error message, replace field by label
-        for (let prop in entity.rawAttributes) {
-            if (entity.rawAttributes[prop].label) {
-                let re = new RegExp(entity.tableName + "\." + prop + "[^']*", 'gi')
-                msg = msg.replace(re, entity.rawAttributes[prop].label)
+        for (let prop in this.entity.rawAttributes) {
+            if (this.entity.rawAttributes[prop].label) {
+                let re = new RegExp(this.entity.tableName + "\." + prop + "[^']*", 'gi')
+                msg = msg.replace(re, this.entity.rawAttributes[prop].label)
             }
         }
         return msg
     }
-    async find(entity, params) {
-        console.log("criteria**", params)
-        let resp = { status: 200, message: "Success", data: null };
+    async find(params) {
+        // console.log("criteria**", params)
+        let resp = { status: 200, message: "Success", data: null }
         const parameters = this.parseParams(params)
-        if (params[entity.primaryKeyAttributes]) {
-            await entity.findByPk(params[entity.primaryKeyAttributes], parameters.findAttr)
+        if (params[this.entity.primaryKeyAttributes]) {
+            await this.entity.findByPk(params[this.entity.primaryKeyAttributes], parameters.attributes)
                 .then((result) => {
-                    if (result && result.dataValues) resp.data = result.dataValues;
+                    if (result && result.dataValues) resp.data = result.dataValues
                     else {
-                        resp.message = "Not Found";
-                        resp.status = 404;
+                        resp.message = "Not Found"
+                        resp.status = 404
                     }
                 })
-                .catch(err => this.errorHandler(entity, err, resp))
+                .catch(err => this.errorHandler(err, resp))
         }
         else {
-           
-            const where = this.where(entity, parameters.filters)
+            const where = this.where(parameters.filters)
             // console.log("parameters**", parameters, entity.order)
             if (parameters.grid.count) {
-                parameters.grid.records = await entity.count({ where: { [Op.and]: where } })
+                parameters.grid.records = await this.entity.count({ where: { [Op.and]: where } })
             }
-            await entity.findAll({
-                ...parameters.findAttr,
+            await this.entity.findAll({
+                ...parameters.attributes,
                 where: { [Op.and]: where },
-                order: this.order(entity, parameters.grid.order),
+                order: this.order(parameters.grid.order),
                 //attributes: {exclude: ['createdAt', 'updatedAt']}
             })
                 .then(result => {
-                    resp.data = result;
+                    resp.data = result
                     resp.parameters = parameters
                 })
-                .catch(err => this.errorHandler(entity, err, resp))
+                .catch(err => this.errorHandler(err, resp))
         }
-        return resp;
+        return resp
     }
     parseParams(params) {
         // grid.order=field asc,...
@@ -63,7 +65,7 @@ class SequelizeHelper {
         // grid.records=200
         // grid.count = true/false
         let result = {
-            findAttr: {},
+            attributes: {},
             grid: {
                 order: null,
                 max: 10000,
@@ -72,9 +74,9 @@ class SequelizeHelper {
             },
             filters: {}
         }
-        if (params.findAttr) result.findAttr = params.findAttr
+        if (params.attributes) result.attributes = params.attributes
         for (let param in params) {
-            const aParam = param.split(".");
+            const aParam = param.split(".")
             if (aParam.length == 2) {
                 switch (aParam[0]) {
                     case "grid":
@@ -87,7 +89,7 @@ class SequelizeHelper {
         }
         return result
     }
-    order(entity, order) {
+    order(order) {
         // order "field, otherfield desc
         let result = []
         if (order) {
@@ -97,11 +99,11 @@ class SequelizeHelper {
             })
             return result
         }
-        else if (entity.options.order) return entity.options.order
+        else if (this.entity.options.order) return this.entity.options.order
         return null
 
     }
-    where(entity, filters) {
+    where(filters) {
         // build where clause
         /*
                 any.eq=xx: exact search all fields string/number
@@ -122,7 +124,7 @@ class SequelizeHelper {
         let result = {}
         // console.log("***", filters)
         for (const field in filters) {
-            if (entity.rawAttributes[field]) {
+            if (this.entity.rawAttributes[field]) {
                 switch (filters[field].operator) {
                     case "start":
                         result[field] = { [Op.like]: filters[field].value + "%" }
@@ -148,8 +150,8 @@ class SequelizeHelper {
                         break
                     case "between":
                         const vals = filters[field].value.split(",")
-                        // console.log("vals", vals, entity.rawAttributes[field].type)
-                        if (entity.rawAttributes[field].type.toString().search("DATE") >= 0) {
+                        // console.log("vals", vals, this.entity.rawAttributes[field].type)
+                        if (this.entity.rawAttributes[field].type.toString().search("DATE") >= 0) {
                             vals[0] = vals[0].length > 0 ? new Date(vals[0]) : ""
                             vals[1] = vals[1].length > 0 ? new Date(vals[1]) : ""
                         }
@@ -173,78 +175,82 @@ class SequelizeHelper {
         // console.log("where**", result)
         return result
     }
-    async restFind(entity, req, res) {
-        let resp = await this.find(entity, { ...req.body, ...req.params, ...req.query })
-        res.status(resp.status).json(resp);
+    async restFind(req, res) {
+        let resp = await this.find({ ...req.body, ...req.params, ...req.query })
+        res.status(resp.status).json(resp)
+        return this
     }
-    async create(entity, values) {
-        let resp = { status: 200, message: "Success", data: null };
-        this.dataCleaning(entity, values);
-        await entity.create(values)
+    async create(values) {
+        
+        let resp = { status: 200, message: "Success", data: null }
+        this.dataCleaning(values)
+        console.log("values", values)
+        await this.entity.create(values)
             .then(result => resp.data = result)
-            .catch(err => this.errorHandler(entity, err, resp));
-        return resp;
+            .catch(err => this.errorHandler(err, resp))
+        return resp
     }
 
-    async restCreate(entity, req, res) {
-        let resp = await this.create(entity, req.body)
-        res.status(resp.status).json(resp);
+    async restCreate(req, res) {
+        let resp = await this.create(req.body)
+        res.status(resp.status).json(resp)
+        return this
     }
-    async update(entity, values) {
-        let resp = { status: 200, message: "Success", data: null };
-        this.dataCleaning(entity, values);
-        const id = values[entity.primaryKeyAttributes];
-        const where = { [entity.primaryKeyAttributes]: id };
-        this.removePK(entity, values)
-        await entity.update(values, { where: where })
-            .catch(err => this.errorHandler(entity, err, resp));
+    async update(values) {
+        let resp = { status: 200, message: "Success", data: null }
+        this.dataCleaning(values)
+        const where = { [this.entity.primaryKeyAttributes]: values[this.entity.primaryKeyAttributes] }
+        this.removePK(values)
+        await this.entity.update(values, { where: where })
+            .catch(err => this.errorHandler(err, resp))
         if (resp.status == 200)
-            return await this.find(entity, where);
-        return resp;
+            return await this.find(where)
+        return resp
     }
-    async restUpdate(entity, req, res) {
+    async restUpdate(req, res) {
         let values = req.body
-        if (!values[entity.primaryKeyAttributes])
-            values[entity.primaryKeyAttributes] = req.params[entity.primaryKeyAttributes];
-        let resp = await this.update(entity, values)
-        res.status(resp.status).json(resp);
+        if (!values[this.entity.primaryKeyAttributes])
+            values[this.entity.primaryKeyAttributes] = req.params[this.entity.primaryKeyAttributes]
+        let resp = await this.update(values)
+        res.status(resp.status).json(resp)
+        return this
     }
-    async delete(entity, values) {
-        let resp = { status: 200, message: "Success", data: null };
-        await entity.findByPk(values[entity.primaryKeyAttributes])
+    async delete(values) {
+        let resp = { status: 200, message: "Success", data: null }
+        await this.entity.findByPk(values[this.entity.primaryKeyAttributes])
             .then((result) => resp.data = result)
-            .catch(err => this.errorHandler(entity, err, resp))
+            .catch(err => this.errorHandler(err, resp))
         if (resp.data == null) {
             resp.status = 404
-            resp.message = "Not Found";
+            resp.message = "Not Found"
         }
         else {
-            await entity.destroy({ where: { [entity.primaryKeyAttributes]: values[entity.primaryKeyAttributes] } })
+            await this.entity.destroy({ where: { [this.entity.primaryKeyAttributes]: values[this.entity.primaryKeyAttributes] } })
                 .then()
-                .catch(err => this.errorHandler(entity, err, resp))
+                .catch(err => this.errorHandler(err, resp))
         }
-        return resp;
+        return resp
     }
-    async restDelete(entity, req, res) {
+    async restDelete(req, res) {
         let values = req.body
-        if (!values[entity.primaryKeyAttributes])
-            values[entity.primaryKeyAttributes] = req.params[entity.primaryKeyAttributes];
-        let resp = await this.delete(entity, values)
-        res.status(resp.status).json(resp);
+        if (!values[this.entity.primaryKeyAttributes])
+            values[this.entity.primaryKeyAttributes] = req.params[this.entity.primaryKeyAttributes]
+        let resp = await this.delete(values)
+        res.status(resp.status).json(resp)
+        return this
     }
-    dataCleaning(entity, data) {
+    dataCleaning(data) {
         // clean data for insert or update
         for (const prop in data) {
-            //console.log("****",prop,"=",data[prop], data[prop] === "")
-            if (prop in entity.rawAttributes == false) {
+            if (prop in this.entity.rawAttributes == false) {
                 delete data[prop]
             }
             else if (data[prop] === "") data[prop] = null
         }
     }
-    removePK(entity, data) {
-        delete data[entity.primaryKeyAttributes]
+    removePK(data) {
+        delete data[this.entity.primaryKeyAttributes]
     }
-};
+}
 
-module.exports = SequelizeHelper;
+module.exports = SequelizeHelper

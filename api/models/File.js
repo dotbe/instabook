@@ -1,6 +1,7 @@
 const File = db.define('file',
     {
         id: {
+            label: "File ID",
             type: Sequelize.STRING(50),
             allowNull: false,
             primaryKey: true,
@@ -34,11 +35,11 @@ const File = db.define('file',
         order: [["name" ,"ASC"]],
        
     }
-);
+)
 
 
 console.log("File.table*", File.tableName)
 console.log("File.PK*", File.primaryKeyAttributes)
 //console.log("File.fields*", File.rawAttributes)
-global.File = File;
-module.exports = File;
+global.File = File
+module.exports = File

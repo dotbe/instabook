@@ -3,8 +3,8 @@ const Sequelize = require('Sequelize')
 const util = require('util')
 const bodyParser = require('body-parser')
 
-global.Sequelize = Sequelize;
-global.util = util;
+global.Sequelize = Sequelize
+global.util = util
 
 const db = require('./models/db')
 const SequelizeHelper = require('./services/SequelizeHelper')
@@ -14,67 +14,66 @@ db.authenticate()
     .catch(err => console.error('ERROR', err))
 
 const app = express()
-const helper = new SequelizeHelper()
 app.use(bodyParser.json())
 
 app.get("/", (req, res) => res.json(File))
 
 // FILE
 app.get('/api/files/:id?', (req, res) => {
-    req.params.findAttr = {include: Doc}
-    helper.restFind(File, req, res)
-});
+    req.params.attributes = {include: Doc}
+    new SequelizeHelper(File).restFind(req, res)
+})
 app.post('/api/files', (req, res) => {
-    helper.restCreate(File, req, res)
-});
+    new SequelizeHelper(File).restCreate(req, res)
+})
 app.put('/api/files/:id?', (req, res) => {
-    helper.restUpdate(File, req, res)
-});
+    new SequelizeHelper(File).restUpdate(req, res)
+})
 app.delete('/api/files/:id', (req, res) => {
-    helper.restDelete(File, req, res)
-});
+    new SequelizeHelper(File).restDelete(req, res)
+})
 
 // DOC
 app.get('/api/docs/:id?', (req, res) => {
-    helper.restFind(Doc, req, res)
-});
+    new SequelizeHelper(Doc).restFind(req, res)
+})
 app.post('/api/docs', (req, res) => {
-    helper.restCreate(Doc, req, res)
-});
+    new SequelizeHelper(Doc).restCreate(req, res)
+})
 app.put('/api/docs/:id?', (req, res) => {
-    helper.restUpdate(Doc, req, res)
-});
+    new SequelizeHelper(Doc).restUpdate(req, res)
+})
 app.delete('/api/docs/:id', (req, res) => {
-    helper.restDelete(Doc, req, res)
-});
+    new SequelizeHelper(Doc).restDelete(req, res)
+})
 
 // JNL
 app.get('/api/jnls/:id?', (req, res) => {
-    helper.restFind(Jnl, req, res)
-});
+    new SequelizeHelper(Jnl).restFind(req, res)
+})
 app.post('/api/jnls', (req, res) => {
-    helper.restCreate(Jnl, req, res)
-});
+    new SequelizeHelper(Jnl).restCreate(req, res)
+})
 app.put('/api/jnls/:id?', (req, res) => {
-    helper.restUpdate(Jnl, req, res)
-});
+    new SequelizeHelper(Jnl).restUpdate(req, res)
+})
 app.delete('/api/jnls/:id', (req, res) => {
-    helper.restDelete(Jnl, req, res)
-});
+    new SequelizeHelper(Jnl).restDelete(req, res)
+})
 
 // ACC
 app.get('/api/accs/:id?', (req, res) => {
-    helper.restFind(Acc, req, res)
-});
+    new SequelizeHelper(Acc).restFind(req, res)
+})
 app.post('/api/accs', (req, res) => {
-    helper.restCreate(Acc, req, res)
-});
+    new SequelizeHelper(Acc).restCreate(req, res)
+})
 app.put('/api/accs/:id?', (req, res) => {
-    helper.restUpdate(Acc, req, res)
-});
+    new SequelizeHelper(Acc).restUpdate(req, res)
+})
 app.delete('/api/accs/:id', (req, res) => {
-    helper.restDelete(Acc, req, res)
-});
+    new SequelizeHelper(Acc).restDelete(req, res)
+})
 
 const port = process.env.PORT || 5000
 app.listen(port, console.log(`server started on port ${port}`))

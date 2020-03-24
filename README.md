@@ -61,19 +61,20 @@ returns a structure
 
 Example:
 ```
-    const helper = new SequelizeHelper()
-    app.get('/api/docs/:docId?', (req, res) => {
-        helper.restFind(Doc, req, res)
-    });
-    app.post('/api/docs', (req, res) => {
-        helper.restCreate(Doc, req, res)
-    });
-    app.put('/api/docs/:docId?', (req, res) => {
-        helper.restUpdate(Doc, req, res)
-    });
-    app.delete('/api/docs/:docId', (req, res) => {
-        helper.restDelete(Doc, req, res)
-    });
+app.get('/api/files/:id?', (req, res) => {
+    req.params.attributes = {include: Doc}
+    new SequelizeHelper(File).restFind(req, res)
+})
+app.post('/api/files', (req, res) => {
+    new SequelizeHelper(File).restCreate(req, res)
+})
+app.put('/api/files/:id?', (req, res) => {
+    new SequelizeHelper(File).restUpdate(req, res)
+})
+app.delete('/api/files/:id', (req, res) => {
+    new SequelizeHelper(File).restDelete(req, res)
+})
+
 ```
 
 

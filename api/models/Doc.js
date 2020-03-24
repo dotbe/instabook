@@ -1,3 +1,4 @@
+
 const Doc = db.define('doc',
     {
         id: {
@@ -54,11 +55,11 @@ const Doc = db.define('doc',
         freezeTableName: true,
         order: [["regDate", "ASC"]]
     }
-);
+)
 
 console.log("Doc.table*", Doc.tableName)
 console.log("Doc.PK*", Doc.primaryKeyAttributes)
 // console.log("Doc.fields*", Doc.rawAttributes)
 
-global.Doc = Doc;
-module.exports = Doc;
+global.Doc = Doc
+module.exports = Doc

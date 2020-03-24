@@ -46,5 +46,5 @@ const Acc = db.define('Acc',
 console.log("Acc.table*", Acc.tableName)
 console.log("Acc.PK*", Acc.primaryKeyAttributes)
 // console.log("Acc.fields*", Acc.rawAttributes)
-global.Acc = Acc;
-module.exports = Acc;
+global.Acc = Acc
+module.exports = Acc
