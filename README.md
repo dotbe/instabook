@@ -80,20 +80,26 @@ app.delete('/api/files/:id', (req, res) => {
 
 First setup
 ---
+* Rest API
 ```
-/api>npm init
-/api>npm i express sequelize mysql2 joi express-handlebars body-parser
-/api>npm i -D nodemon
-/api>npm i sequelize-cli -g
-/package.json
+/instabook/api>npm init
+/instabook/api>npm i express sequelize mysql2 joi express-handlebars body-parser
+/instabook/api>npm i -D nodemon
+/instabook/api>npm i sequelize-cli -g
+/instabook/api/package.json
     "scripts": {
         "start": "node index.js",
         "dev": "nodemon index.js"
     }
-/api>npm sequelize init
-/api>npm run dev
+/instabook/api>npm sequelize init
+/instabook/api>npm run dev
 ```
-
+* Front-end
+````
+/instabook>npm i -g @vue-cli
+/instabook>vue create web
+/web>vue add vuetity
+````
 Tips
 ---
 
