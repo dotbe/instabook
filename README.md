@@ -98,7 +98,8 @@ First setup
 ````
 /instabook>npm i -g @vue-cli
 /instabook>vue create web
-/web>vue add vuetity
+/web>vue add vuetify
+/web>npm run serve
 ````
 Tips
 ---
