@@ -93,6 +93,8 @@ First setup
     }
 /instabook/api>npm sequelize init
 /instabook/api>npm run dev
+
+npm install cors --save
 ```
 * Front-end
 ````

@@ -2,6 +2,8 @@ const express = require('express')
 const Sequelize = require('Sequelize')
 const util = require('util')
 const bodyParser = require('body-parser')
+const cors = require('cors');
+
 
 global.Sequelize = Sequelize
 global.util = util
@@ -17,7 +19,16 @@ const app = express()
 app.use(bodyParser.json())
 
 app.get("/", (req, res) => res.json(File))
-
+// CORS (Cross Origin Resource Sharing) -> Access-Control-Allow-Origin
+app.options('*', cors())
+app.use(function(req, res, next) { 
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization");
+    res.header("Content-Type", "application/json");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+}); 
 // FILE
 app.get('/api/files/:id?', (req, res) => {
     req.params.attributes = {include: Doc}

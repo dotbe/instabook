@@ -17,20 +17,25 @@
 
       </div>
       <v-spacer></v-spacer>  
+
+      
     </v-app-bar>
 
     <v-content>
+        <FilesList />
         
     </v-content>
   </v-app>
 </template>
 
 <script>
+import FilesList from "./components/FilesList"
+
 export default {
   name: 'App',
 
   components: {
-  
+    FilesList
   },
 
   data: () => ({
