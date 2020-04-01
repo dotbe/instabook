@@ -77,6 +77,63 @@ app.delete('/api/files/:id', (req, res) => {
 
 ```
 
+Grid - Vue.js component
+---
+````
+const metadata = {
+  file: {
+    api: "http://localhost:5000/api/files",
+    label: {
+      list: "Files",
+      add: "New File",
+      edit: "Edit File"
+    },
+    feilds: [
+      { value: "name", text: "Name", required:true },
+      { value: "taxRef", text: "VAT" },
+      
+    ]
+  }
+};
+       <!--- custom edit form --->
+      <Grid v-bind:config="metadata.file" v-slot:default="slotProps"> 
+       <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="slotProps.editedItem.name" label="Name"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field v-model="slotProps.editedItem.taxRef" label="VAT"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+       </Grid>
+
+        <!--- default edit form --->
+       <Grid v-bind:config="metadata.file" />
+
+       <!--- add custom actions --->
+        <Grid v-bind:config="metadata.file">
+        <template v-slot:custom-actions="slotProps" >
+          <v-icon @click="open(slotProps.item.name)" class="mx-2">mdi-folder-open</v-icon>
+        </template>
+      </Grid>
+
+<!--- another way to custom actions => metadata[entity].action.custom array {icon, fct}--->
+  let metadata = {
+    file: {
+        api: "http://localhost:5000/api/files",
+        actions: {
+            del: true,
+            edit: true,
+            custom: [{
+                icon: "mdi-folder-open",
+                fct: (el) => alert(el.name),
+                maxwidth: "30em",
+            }],
+        },
+
+````
 
 First setup
 ---

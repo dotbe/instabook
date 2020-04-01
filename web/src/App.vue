@@ -1,45 +1,38 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
+        <v-img contain src="./assets/logo.png" transition="scale-transition" width="50" />
       </div>
-      <v-spacer></v-spacer>  
-
-      
+      <v-spacer></v-spacer>
     </v-app-bar>
 
     <v-content>
-        <FilesList />
-        
+      <Grid v-bind:config="metadata.file" />
     </v-content>
   </v-app>
 </template>
 
+
+
 <script>
-import FilesList from "./components/FilesList"
+import Grid from "./components/Grid";
+import metadata from "./metadata";
 
 export default {
-  name: 'App',
-
-  components: {
-    FilesList
+  name: "App",
+  data() {
+    return { metadata };
   },
+  components: {
+    Grid,
+  },
+  mounted() {
+    document.title = metadata.title;
+  }
 
-  data: () => ({
-    //
-  }),
+  // methods:{
+  //   open(item){alert(item)}
+  // }
 };
 </script>
