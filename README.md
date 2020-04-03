@@ -140,7 +140,7 @@ First setup
 * Rest API
 ```
 /instabook/api>npm init
-/instabook/api>npm i express sequelize mysql2 joi express-handlebars body-parser
+/instabook/api>npm i express sequelize mysql2 body-parser uuid
 /instabook/api>npm i -D nodemon
 /instabook/api>npm i sequelize-cli -g
 /instabook/api/package.json

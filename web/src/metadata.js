@@ -2,6 +2,7 @@ let metadata = {
     title: "InstaBook",
     file: {
         api: "http://localhost:5000/api/files",
+        refetch: false,
         actions: {
             del: true,
             edit: true,
@@ -23,11 +24,18 @@ let metadata = {
             {
                 value: 'name',
                 text: 'Name',
-                // width: "30em"
+                disabled: true,
+                required:true,
+                max: 30,
+                min: 3,
+                regexp: [/^\S*$/, "No space!"]
+                // width: "30em",
+                // email: true,
             },
             {
                 value: 'taxRef',
                 text: 'VAT',
+                required:false,
                 // width: "30em"
             },
         ]
