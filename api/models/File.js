@@ -28,9 +28,22 @@ const File = db.define('file',
                     msg: "Tax Reference must be between 3 and 20"
                 }
             }
-        }
+        },
+        countDoc: {
+            label: "# Docs",
+            calculated: true,
+            type: Sequelize.INTEGER,
+        },
+        lastRegDate: {
+            label: "Last date",
+            calculated: true,
+            type: Sequelize.DATEONLY,
+        },
+
     },
     {
+        tableName: "file",
+        viewName: "v_file",
         freezeTableName: true,
         order: [["name" ,"ASC"]],
        

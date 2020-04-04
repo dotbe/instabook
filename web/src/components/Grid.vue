@@ -10,10 +10,10 @@
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>{{config.labels.list}}</v-toolbar-title>
+         <v-icon @click="fetch(true)" class="mx-2" color="green">mdi-refresh-circle</v-icon>
           <v-divider class="mx-4" inset vertical></v-divider>
-
           <v-spacer></v-spacer>
-          <v-btn color="primary" dark class="mb-2" @click="add">{{config.labels.add}}</v-btn>
+          <v-btn color="primary" class="mb-2" @click="add">{{config.labels.add}}</v-btn>
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
@@ -47,35 +47,35 @@
 
         <v-card-text>
           <slot v-bind:item="editedItem">
-            <v-container>
-              <v-row v-for="(field, index) in config.fields" :key="field.value">
-                <v-text-field
-                  :autofocus="!index"
-                  v-if="field.text"
-                  v-model="editedItem[field.value]"
-                  :label="field.text"
-                  :disabled="editedIndex!=-1 && field.disabled"
-                  :rules="fieldRules(field)"
-                ></v-text-field>
-                <!---
-                <div>{{field.value}}+{{editedIndex}}*{{field.required}}</div>
-                --->
-              </v-row>
-            </v-container>
+              <v-form ref="form" v-model="valid" :lazy-validation="true"> 
+                <v-row v-for="(field, index) in config.fields" :key="field.value">
+                  <v-text-field
+                    :autofocus="!index"
+                    v-if="field.text"
+                    v-model="editedItem[field.value]"
+                    :label="field.text"
+                    :disabled="editedIndex!=-1 && field.disabled"
+                    :readonly="field.readonly"
+                    :filled="field.readonly"
+                    :rules="fieldRules(field)"
+                    @keyup.enter="save"
+                  ></v-text-field>
+                </v-row>
+              </v-form>
           </slot>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+          <v-btn text @click="close">Cancel</v-btn>
+          <v-btn color="primary" text @click="save" :disabled="!valid">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-snackbar v-model="snackbar">
-      {{ snackbarText }}
-      <v-icon @click="snackbar = false">mdi-close-thick</v-icon>
+    <v-snackbar v-model="feedback" :color="feedbackColor">
+      {{ feedbackMsg }}
+      <v-icon @click="feedback = false">mdi-close-thick</v-icon>
     </v-snackbar>
   </div>
 </template>
@@ -91,8 +91,10 @@ export default {
       editedItem: {},
       fetched: false,
       dialog: false,
-      snackbar: false,
-      snackbarText: null
+      feedback: false,
+      feedbackMsg: null,
+      feedbackColor: "",
+      valid: false,
     };
   },
   computed: {
@@ -103,28 +105,43 @@ export default {
     }
   },
   methods: {
-    edit(item) {
-      this.editedIndex = this.items.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+    fetch(force = false) {
+      if (force === true || this.config.refetch) this.items = [];
+      if (this.items.length == 0) {
+        this.fetched = false;
+        fetch(this.config.api)
+          .then(payload => payload.json())
+          .then(payload => {
+            if (this.isOk(payload)) {
+              console.log("fetch:", payload);
+              this.items = payload.data;
+              this.fetched = true;
+            }
+          })
+          .catch(err => this.catch(err));
+      }
     },
+
     del(item) {
       const index = this.items.indexOf(item);
       console.log("delete", item);
       if (confirm(`Confirm delete "${item[this.config.fields[0].value]}"?`)) {
         fetch(this.config.api + "/" + item.id, { method: "DELETE" })
+          .then(payload => payload.json())
           .then(payload => {
-            console.log("deleted: ", payload);
-            this.items.splice(index, 1);
-            this.fetch();
+            if (this.isOk(payload)) {
+              console.log("deleted: ", payload);
+              this.items.splice(index, 1);
+              this.fetch();
+            }
           })
-          .catch();
+          .catch(err => this.catch(err));
       }
     },
-    close() {
-      this.dialog = false;
-    },
     save() {
+      if(!this.valid){
+        return false
+      }
       if (this.editedIndex > -1) {
         //update
         fetch(this.config.api + "/" + this.editedItem.id, {
@@ -136,11 +153,13 @@ export default {
         })
           .then(payload => payload.json())
           .then(payload => {
-            this.items.splice(this.editedIndex, 1, payload.data);
-            console.log("updated: ", payload.data);
-            this.fetch();
+            if (this.isOk(payload)) {
+              this.items.splice(this.editedIndex, 1, payload.data)
+              console.log("updated: ", payload.data)
+              this.fetch();
+            }
           })
-          .catch();
+          .catch(err => this.catch(err))
       } else {
         // add
         fetch(this.config.api, {
@@ -152,40 +171,43 @@ export default {
         })
           .then(payload => payload.json())
           .then(payload => {
-            if(payload.ok){
-              this.items.push(payload.data);
-              console.log("added: ", payload.data);
+            if (this.isOk(payload)) {
+              this.items.push(payload.data)
+              console.log("added: ", payload.data)
               this.fetch();
             }
-            else{
-              this.snackbar = true
-              this.snackbarText = payload.message
-            }
           })
-          .catch(err => console.log("error on add: ", err));
+          .catch(err => this.catch(err))
       }
 
       // this.items[this.editedIndex] = f
-      this.close();
+      this.close()
+      return true
+    },
+    close() {
+      this.dialog = false;
+    },
+    edit(item) {
+      this.editedIndex = this.items.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
     },
     add() {
       this.editedItem = {};
       this.editedIndex = -1;
       this.dialog = true;
     },
-    fetch() {
-      if (this.config.refetch) this.items = [];
-      if (this.items.length == 0) {
-        this.fetched = false;
-        fetch(this.config.api)
-          .then(payload => payload.json())
-          .then(payload => {
-            console.log("fetch:", payload);
-            this.items = payload.data;
-            this.fetched = true;
-          })
-          .catch();
-      }
+    catch(err) {
+      this.feedback = true;
+      this.feedbackMsg = err.message;
+      this.feedbackColor = "red";
+    },
+    isOk(payload) {
+      if (payload.ok) return true;
+      this.feedback = true;
+      this.feedbackMsg = payload.message;
+      this.feedbackColor = payload.status < 500 ? "yellow" : "orange";
+      return false;
     },
     fieldRules(field) {
       let rules = [];

@@ -26,7 +26,8 @@ class SequelizeHelper {
         return msg
     }
     async find(params) {
-        // console.log("criteria**", params)
+        // console.log("this.entity.tableName: ", this.entity.tableName, "->", this.entity.options)
+        if(this.entity.options.viewName) this.entity.tableName = this.entity.options.viewName
         const parameters = this.parseParams(params)
         if (params[this.entity.primaryKeyAttributes]) {
             await this.entity.findByPk(params[this.entity.primaryKeyAttributes], parameters.attributes)
@@ -247,7 +248,7 @@ class SequelizeHelper {
     dataCleaning(data) {
         // clean data for insert or update
         for (const prop in data) {
-            if (prop in this.entity.rawAttributes == false) {
+            if (prop in this.entity.rawAttributes == false || this.entity.rawAttributes[prop].calcuted !== true) {
                 delete data[prop]
             }
             else if (data[prop] === "") data[prop] = null

@@ -18,7 +18,7 @@ let metadata = {
             edit: "Edit File"
         },
         form:{
-            width: "500px",
+           // width: "500px",
         },
         fields: [
             {
@@ -37,6 +37,18 @@ let metadata = {
                 text: 'VAT',
                 required:false,
                 // width: "30em"
+            },
+            {
+                value: 'countDoc',
+                text: '# Docs',
+                readonly: true,
+                width: "10em",
+            },
+            {
+                value: 'lastRegDate',
+                text: 'Last',
+                readonly: true,
+                width: "10em"
             },
         ]
     }
