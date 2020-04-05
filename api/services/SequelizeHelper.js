@@ -27,19 +27,23 @@ class SequelizeHelper {
     }
     async find(params) {
         // console.log("this.entity.tableName: ", this.entity.tableName, "->", this.entity.options)
-        if(this.entity.options.viewName) this.entity.tableName = this.entity.options.viewName
+        let tmpTableName
+        if(this.entity.options.viewName) {
+            tmpTableName = this.entity.tableName
+            this.entity.tableName = this.entity.options.viewName
+        }
         const parameters = this.parseParams(params)
         if (params[this.entity.primaryKeyAttributes]) {
             await this.entity.findByPk(params[this.entity.primaryKeyAttributes], parameters.attributes)
-                .then((result) => {
-                    if (result && result.dataValues) this.resp.data = result.dataValues
-                    else {
-                        this.resp.message = "Not Found"
-                        this.resp.status = 404
-                        this.resp.ok = false
-                    }
-                })
-                .catch(err => this.errorHandler(err))
+            .then((result) => {
+                if (result && result.dataValues) this.resp.data = result.dataValues
+                else {
+                    this.resp.message = "Not Found"
+                    this.resp.status = 404
+                    this.resp.ok = false
+                }
+            })
+            .catch(err => this.errorHandler(err))
         }
         else {
             const where = this.where(parameters.filters)
@@ -53,12 +57,13 @@ class SequelizeHelper {
                 order: this.order(parameters.grid.order),
                 //attributes: {exclude: ['createdAt', 'updatedAt']}
             })
-                .then(result => {
-                    this.resp.data = result
-                    this.resp.parameters = parameters
-                })
-                .catch(err => this.errorHandler(err))
+            .then(result => {
+                this.resp.data = result
+                this.resp.parameters = parameters
+            })
+            .catch(err => this.errorHandler(err))
         }
+        this.entity.tableName = tmpTableName
         return this.resp
     }
     parseParams(params) {
@@ -184,7 +189,6 @@ class SequelizeHelper {
         return this
     }
     async create(values) {
-        
         // UUID as default ID if string and not provided
         if (this.type(this.entity.rawAttributes[this.entity.primaryKeyAttributes]) == "string" &&
             !values[this.entity.primaryKeyAttributes]) {
@@ -197,7 +201,6 @@ class SequelizeHelper {
             .catch(err => this.errorHandler(err))
         return this.resp
     }
-
     async restCreate(req, res) {
         let resp = await this.create(req.body)
         res.status(resp.status).json(resp)
@@ -222,9 +225,7 @@ class SequelizeHelper {
         return this
     }
     async delete(values) {
-        await this.entity.findByPk(values[this.entity.primaryKeyAttributes])
-            .then((result) => this.resp.data = result)
-            .catch(err => this.errorHandler(err))
+        this.resp = await this.find(values)
         if (this.resp.data == null) {
             this.resp.ok = false
             this.resp.status = 404
@@ -245,14 +246,16 @@ class SequelizeHelper {
         res.status(resp.status).json(resp)
         return this
     }
-    dataCleaning(data) {
+    dataCleaning(values) {
         // clean data for insert or update
-        for (const prop in data) {
-            if (prop in this.entity.rawAttributes == false || this.entity.rawAttributes[prop].calcuted !== true) {
-                delete data[prop]
+        for (const fieldName in values) {
+            // console.log("dataCleaning: ",fieldName, this.entity.rawAttributes[fieldName].calculated)
+            if (!(this.entity.rawAttributes[fieldName] && this.entity.rawAttributes[fieldName].calculated != true)) {
+                delete values[fieldName]
             }
-            else if (data[prop] === "") data[prop] = null
+            else if (values[fieldName] === "") values[fieldName] = null
         }
+        console.log("values: ",values)
     }
     removePK(data) {
         delete data[this.entity.primaryKeyAttributes]

@@ -41,11 +41,13 @@ let metadata = {
             {
                 value: 'countDoc',
                 text: '# Docs',
+                type: 'integer',
                 readonly: true,
                 width: "10em",
             },
             {
                 value: 'lastRegDate',
+                type: 'date',
                 text: 'Last',
                 readonly: true,
                 width: "10em"
