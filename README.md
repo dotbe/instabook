@@ -158,6 +158,7 @@ npm install cors --save
 /instabook>npm i -g @vue-cli
 /instabook>vue create web
 /web>vue add vuetify
+/web>npm install --save vue-router
 /web>npm run serve
 ````
 Tips

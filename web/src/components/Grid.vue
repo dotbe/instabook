@@ -27,7 +27,7 @@
                   <v-icon
                     v-for="action in config.actions.custom"
                     v-bind:key="action.icon"
-                    @click="action.fct(myprops.item)"
+                    @click="action.fct(myprops.item, $router)"
                     class="mx-2"
                     v-bind:color="action.color"
                   >{{action.icon}}</v-icon>
@@ -111,7 +111,7 @@ export default {
     };
   },
   computed: {
-    dialogMaxWidth: function() {
+    dialogMaxWidth () {
       return this.config.form && this.config.form.width
         ? this.config.form.width
         : "40em";
@@ -251,17 +251,19 @@ export default {
       if (value != null && field.type) {
         switch (field.type) {
           case "date":
-            value = value.split("-")
-            value = value[2] + "/" + value[1] + "/" + value[0]
-            break
+            value = value.split("-");
+            value = value[2] + "/" + value[1] + "/" + value[0];
+            break;
           case "decimal":
-            value = value.toLocaleString(undefined, { minimumFractionDigits: 2 })
-            break
+            value = value.toLocaleString(undefined, {
+              minimumFractionDigits: 2
+            });
+            break;
           case "integer":
-            value = value.toLocaleString()
+            value = value.toLocaleString();
         }
       }
-      return value
+      return value;
     }
   },
   mounted() {

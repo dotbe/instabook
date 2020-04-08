@@ -8,7 +8,7 @@ let metadata = {
             edit: true,
             custom: [{
                 icon: "mdi-folder-open",
-                fct: (el) => alert(el.name),
+                fct: (el, router) => router.push("/files/" + (el.id)).catch(e => e),
                 color: "orange",
             }],
         },
@@ -17,15 +17,15 @@ let metadata = {
             add: "New File",
             edit: "Edit File"
         },
-        form:{
-           // width: "500px",
+        form: {
+            // width: "500px",
         },
         fields: [
             {
                 value: 'name',
                 text: 'Name',
                 disabled: true,
-                required:true,
+                required: true,
                 max: 30,
                 min: 3,
                 regexp: [/^\S*$/, "No space!"]
@@ -35,7 +35,7 @@ let metadata = {
             {
                 value: 'taxRef',
                 text: 'VAT',
-                required:false,
+                required: false,
                 // width: "30em"
             },
             {
@@ -53,7 +53,87 @@ let metadata = {
                 width: "10em"
             },
         ]
-    }
+    },
+    acc: {
+        api: "http://localhost:5000/api/accs",
+        refetch: false,
+        actions: {
+            del: true,
+            edit: true,
+        },
+        labels: {
+            list: "Accounts",
+            add: "New Account",
+            edit: "Edit Account",
+        },
+        form: {
+            // width: "500px",
+        },
+        fields: [
+            {
+                value: 'code',
+                text: 'Code',
+                disabled: true,
+                required: true,
+                max: 20,
+                min: 6,
+                regexp: [/^\S*$/, "No space!"],
+                // width: "30em",
+                // email: true,
+            },
+            {
+                value: 'name',
+                text: 'Name',
+                required: true,
+                // width: "30em"
+            },
+            {
+                value: 'active',
+                text: 'Active',
+                type: 'boolean',
+                width: "10em",
+            },
+        ],
+    },
+    jnl: {
+        api: "http://localhost:5000/api/jnls",
+        refetch: false,
+        actions: {
+            del: true,
+            edit: true,
+        },
+        labels: {
+            list: "Journals",
+            add: "New Journal",
+            edit: "Edit Journal",
+        },
+        form: {
+            // width: "500px",
+        },
+        fields: [
+            {
+                value: 'type',
+                text: 'Type',
+                disabled: true,
+                required: true,
+                options:["BUY", "SELL", "FINANCE", "DIVERSE"]
+                // width: "30em",
+                // email: true,
+            },
+            {
+                value: 'name',
+                text: 'Name',
+                required: true,
+                // width: "30em"
+            },
+            {
+                value: 'active',
+                text: 'Active',
+                type: 'boolean',
+                width: "10em",
+            },
+        ],
+    },
 }
 
 export default metadata

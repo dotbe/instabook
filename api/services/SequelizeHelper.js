@@ -26,28 +26,28 @@ class SequelizeHelper {
         return msg
     }
     async find(params) {
-        // console.log("this.entity.tableName: ", this.entity.tableName, "->", this.entity.options)
         let tmpTableName
-        if(this.entity.options.viewName) {
+        if (this.entity.options.viewName) {
             tmpTableName = this.entity.tableName
             this.entity.tableName = this.entity.options.viewName
         }
+        // console.log("this.entity.tableName: ", this.entity.tableName)
         const parameters = this.parseParams(params)
+        // console.log("parameters: ", parameters)
         if (params[this.entity.primaryKeyAttributes]) {
             await this.entity.findByPk(params[this.entity.primaryKeyAttributes], parameters.attributes)
-            .then((result) => {
-                if (result && result.dataValues) this.resp.data = result.dataValues
-                else {
-                    this.resp.message = "Not Found"
-                    this.resp.status = 404
-                    this.resp.ok = false
-                }
-            })
-            .catch(err => this.errorHandler(err))
+                .then((result) => {
+                    if (result && result.dataValues) this.resp.data = result.dataValues
+                    else {
+                        this.resp.message = "Not Found"
+                        this.resp.status = 404
+                        this.resp.ok = false
+                    }
+                })
+                .catch(err => this.errorHandler(err))
         }
         else {
             const where = this.where(parameters.filters)
-            // console.log("parameters**", parameters, entity.order)
             if (parameters.grid.count) {
                 parameters.grid.records = await this.entity.count({ where: { [Op.and]: where } })
             }
@@ -57,11 +57,11 @@ class SequelizeHelper {
                 order: this.order(parameters.grid.order),
                 //attributes: {exclude: ['createdAt', 'updatedAt']}
             })
-            .then(result => {
-                this.resp.data = result
-                this.resp.parameters = parameters
-            })
-            .catch(err => this.errorHandler(err))
+                .then(result => {
+                    this.resp.data = result
+                    this.resp.parameters = parameters
+                })
+                .catch(err => this.errorHandler(err))
         }
         this.entity.tableName = tmpTableName
         return this.resp
@@ -83,6 +83,7 @@ class SequelizeHelper {
             },
             filters: {}
         }
+        // console.log("params", params)
         if (params.attributes) result.attributes = params.attributes
         for (let param in params) {
             const aParam = param.split(".")
@@ -96,6 +97,7 @@ class SequelizeHelper {
                 }
             }
         }
+        // console.log("result", result)
         return result
     }
     order(order) {
@@ -159,7 +161,7 @@ class SequelizeHelper {
                         break
                     case "between":
                         const vals = filters[field].value.split(",")
-                        if (type(this.entity.rawAttributes[field].type) == "date") {
+                        if (this.type(this.entity.rawAttributes[field].type) == "date") {
                             vals[0] = vals[0].length > 0 ? new Date(vals[0]) : ""
                             vals[1] = vals[1].length > 0 ? new Date(vals[1]) : ""
                         }
@@ -255,12 +257,13 @@ class SequelizeHelper {
             }
             else if (values[fieldName] === "") values[fieldName] = null
         }
-        console.log("values: ",values)
+        console.log("values: ", values)
     }
     removePK(data) {
         delete data[this.entity.primaryKeyAttributes]
     }
     type(field) {
+        if (!field.type) return "string"
         let s = field.type.toString()
         if (s.match(/NUM|INT|DOUBLE|FLOAT/)) return "number"
         if (s.match(/DATE/)) return "date"
