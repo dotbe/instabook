@@ -63,7 +63,7 @@ class SequelizeHelper {
                 })
                 .catch(err => this.errorHandler(err))
         }
-        this.entity.tableName = tmpTableName
+        if (tmpTableName) this.entity.tableName = tmpTableName
         return this.resp
     }
     parseParams(params) {

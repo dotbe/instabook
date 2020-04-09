@@ -90,7 +90,7 @@ let metadata = {
             {
                 value: 'active',
                 text: 'Active',
-                type: 'boolean',
+                type: 'checkbox',
                 width: "10em",
             },
         ],
@@ -116,7 +116,8 @@ let metadata = {
                 text: 'Type',
                 disabled: true,
                 required: true,
-                options:["BUY", "SELL", "FINANCE", "DIVERSE"]
+                options:["BUY", "SELL", "FINANCE", "DIVERSE"],
+                type: 'select',
                 // width: "30em",
                 // email: true,
             },
@@ -129,8 +130,10 @@ let metadata = {
             {
                 value: 'active',
                 text: 'Active',
-                type: 'boolean',
+                type: 'checkbox',
                 width: "10em",
+                required: true,
+                default: true,
             },
         ],
     },

@@ -2,7 +2,7 @@
   <div>
     <v-data-table
       v-bind:items="items"
-      v-bind:headers="config.fields"
+      v-bind:headers="headers"
       :calculate-widths="true"
       :dense="false"
       loading="!fetched"
@@ -19,8 +19,8 @@
 
       <template slot="item" slot-scope="myprops">
         <tr>
-          <td v-for="field in config.fields" :key="field.value">
-            <span v-if="field.value=='actions'">
+          <td v-for="header in headers" :key="header.value">
+            <span v-if="header.value=='actions'">
               <slot name="custom-actions" v-bind:item="myprops.item"></slot>
               <span v-if="config.actions">
                 <span v-if="config.actions.custom">
@@ -46,7 +46,11 @@
                 >mdi-delete</v-icon>
               </span>
             </span>
-            <span v-else>{{ format(myprops.item[field.value], field) }}</span>
+            <span v-if="header.type == 'checkbox'">
+              <v-icon v-if="myprops.item[header.value]" class="mx-2">mdi-checkbox-marked-outline</v-icon>
+              <v-icon v-else class="mx-2">mdi-checkbox-blank-outline</v-icon>
+            </span>
+            <span v-else>{{ format(myprops.item[header.value], header) }}</span>
           </td>
         </tr>
       </template>
@@ -60,11 +64,30 @@
 
         <v-card-text>
           <slot v-bind:item="editedItem">
-            <v-form ref="form" v-model="valid" :lazy-validation="true">
+            <v-form ref="form" v-model="valid" :lazy-validation="false">
               <v-row v-for="(field, index) in config.fields" :key="field.value">
+                <v-select
+                  v-if="field.type == 'select'"
+                  v-model="editedItem[field.value]"
+                  :items="field.options"
+                  :label="field.text"
+                  :disabled="editedIndex!=-1 && field.disabled"
+                  :readonly="field.readonly"
+                  :filled="field.readonly"
+                  :rules="fieldRules(field)"
+                />
+                <v-checkbox
+                  v-else-if="field.type == 'checkbox'"
+                  v-model="editedItem[field.value]"
+                  :label="field.text"
+                  :disabled="editedIndex!=-1 && field.disabled"
+                  :readonly="field.readonly"
+                  :filled="field.readonly"
+                  :rules="fieldRules(field)"
+                />
                 <v-text-field
+                  v-else
                   :autofocus="!index"
-                  v-if="field.text"
                   v-model="editedItem[field.value]"
                   :label="field.text"
                   :disabled="editedIndex!=-1 && field.disabled"
@@ -72,7 +95,7 @@
                   :filled="field.readonly"
                   :rules="fieldRules(field)"
                   @keyup.enter="save"
-                ></v-text-field>
+                />
               </v-row>
             </v-form>
           </slot>
@@ -111,10 +134,13 @@ export default {
     };
   },
   computed: {
-    dialogMaxWidth () {
+    dialogMaxWidth() {
       return this.config.form && this.config.form.width
         ? this.config.form.width
         : "40em";
+    },
+    headers() {
+      return [...this.config.fields, { value: "actions", sortable: false }];
     }
   },
   methods: {
@@ -207,6 +233,10 @@ export default {
     },
     add() {
       this.editedItem = {};
+      for (let i in this.config.fields) {
+        let field = this.config.fields[i];
+        this.editedItem[field.value] = field.default ? field.default : null;
+      }
       this.editedIndex = -1;
       this.dialog = true;
     },
@@ -267,8 +297,13 @@ export default {
     }
   },
   mounted() {
-    this.config.fields.push({ value: "actions", sortable: false });
     this.fetch();
+  },
+  watch: {
+    config(newVal, oldVal) {
+      console.log("Config: ", oldVal.api, " -> ", newVal.api);
+      this.fetch(true);
+    }
   }
 };
 </script>
