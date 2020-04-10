@@ -92,6 +92,7 @@ let metadata = {
                 text: 'Active',
                 type: 'checkbox',
                 width: "10em",
+                default: true,
             },
         ],
     },
