@@ -2,8 +2,11 @@ import Vue from 'vue'
 import vuetify from './plugins/vuetify';
 import VueRouter from 'vue-router'
 import App from './App.vue'
-import File from './components/File.vue'
-import GC from './components/GenericCRUD.vue'
+import File from './components/File'
+import GC from './components/GenericCRUD'
+import Jnl from './components/Jnl'
+import Balance from './components/Balance'
+import Ledger from './components/Ledger'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -13,12 +16,22 @@ const routes = [
     { path: "/files", component: GC },
     { path: "/accounts", component: GC },
     { path: "/journals", component: GC },
-    { path: "/files/:id", component: File },
+    {
+        path: "/files/:fileId", component: File,
+        children: [
+            { path: "journal/:jnlId", component: Jnl },
+            { path: "journal", component: Jnl },
+            { path: "balance", component: Balance },
+            { path: "ledger", component: Ledger },
+        ]
+    },
 ]
 const router = new VueRouter({
     routes,
     mode: "history"
 })
+export const appBus = new Vue()
+
 // metadata is a global variable
 // Vue.mixin({
 //     data: function () { return { metadata } }

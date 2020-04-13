@@ -1,13 +1,24 @@
 let Tools = {
-    dateValidator(date, required = true, type = "-") {
-        let result = { formated: this.dateFormater(date, type) }
-        date = date == "" ? null : date
-        result.ok = result.formated != null || !required
-        result.errors = result.ok ? [] : (date == null ? ["Date is required!"] : ["Wrong date format!"])
-        result.date = result.formated ? result.formated : date
-        return result
+    format(value, type) {
+        if (value == null) return
+        if (!type) return value
+        switch (type) {
+            case "date":
+                return this.formatDate(value)
+            case "decimal":
+                return this.formatNumber(value, 2)
+            case "integer":
+                return this.formatNumber(value, 0)
+        }
+        return value;
     },
-    dateFormater(date, type = "-") {
+    formatNumber(value, decimals = 2) {
+        value = parseFloat(value)
+        return value.toLocaleString(undefined, {
+            minimumFractionDigits: decimals
+        });
+    },
+    formatDate(date, type = "/") {
         if (date == null) return null;
         let a = [];
         let y, m, d;
@@ -62,6 +73,14 @@ let Tools = {
             }
         }
         return null;
-    }
+    },
+    dateValidator(date, required = true, type = "-") {
+        let result = { formated: this.formatDate(date, type) }
+        date = date == "" ? null : date
+        result.ok = result.formated != null || !required
+        result.errors = result.ok ? [] : (date == null ? ["Date is required!"] : ["Wrong date format!"])
+        result.date = result.formated ? result.formated : date
+        return result
+    },
 }
 export default Tools

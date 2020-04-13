@@ -1,10 +1,12 @@
 <template>
-  <GridMagic v-if="metadatum" v-bind:config="metadatum" />
+  <MagicGrid v-bind:config="metadatum" @feedback="feedback"/>
 </template>
 
 <script>
-import GridMagic from "../lib/GridMagic";
+import MagicGrid from "../lib/MagicGrid";
 import metadata from "../metadata";
+import {appBus} from '../main'
+
 export default {
   data() {
     return { metadata };
@@ -18,8 +20,13 @@ export default {
       return null;
     }
   },
+  methods:{
+    feedback(data){
+      appBus.$emit("feedback", data)
+    }
+  },
   components: {
-    GridMagic
+    MagicGrid
   },
   mounted() {
     document.title = metadata.title;

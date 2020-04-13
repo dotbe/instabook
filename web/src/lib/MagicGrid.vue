@@ -50,7 +50,7 @@
               <v-icon v-if="myprops.item[header.value]" class="mx-2">mdi-checkbox-marked-outline</v-icon>
               <v-icon v-else class="mx-2">mdi-checkbox-blank-outline</v-icon>
             </span>
-            <span v-else>{{ format(myprops.item[header.value], header) }}</span>
+            <span v-else>{{ MagicTools.format(myprops.item[header.value], header.type) }}</span>
           </td>
         </tr>
       </template>
@@ -108,28 +108,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-snackbar v-model="feedback" :color="feedbackColor">
-      {{ feedbackMsg }}
-      <v-icon @click="feedback = false">mdi-close-thick</v-icon>
-    </v-snackbar>
   </div>
 </template>
 
 <script>
+// import {appBus} from '../main'
+import MagicTools from "./MagicTools";
+
 export default {
   props: ["config"],
-  components: {},
   data() {
     return {
+      MagicTools,
       items: [],
       editedIndex: -1,
       editedItem: {},
       fetched: false,
       dialog: false,
-      feedback: false,
-      feedbackMsg: null,
-      feedbackColor: "",
       valid: false
     };
   },
@@ -218,8 +213,6 @@ export default {
           })
           .catch(err => this.catch(err));
       }
-
-      // this.items[this.editedIndex] = f
       this.close();
       return true;
     },
@@ -241,15 +234,15 @@ export default {
       this.dialog = true;
     },
     catch(err) {
-      this.feedback = true;
-      this.feedbackMsg = err.message;
-      this.feedbackColor = "red";
+      this.$emit("feedback", {
+        ok: false,
+        status: err.status,
+        message: err.message
+      });
     },
     isOk(payload) {
       if (payload.ok) return true;
-      this.feedback = true;
-      this.feedbackMsg = payload.message;
-      this.feedbackColor = payload.status < 500 ? "yellow" : "orange";
+      this.$emit("feedback", payload);
       return false;
     },
     fieldRules(field) {
@@ -276,24 +269,6 @@ export default {
         rules.push(value => field.regexp[0].test(value) || field.regexp[1]);
       if (field.rules) rules.push(...field.rules);
       return rules;
-    },
-    format(value, field) {
-      if (value != null && field.type) {
-        switch (field.type) {
-          case "date":
-            value = value.split("-");
-            value = value[2] + "/" + value[1] + "/" + value[0];
-            break;
-          case "decimal":
-            value = value.toLocaleString(undefined, {
-              minimumFractionDigits: 2
-            });
-            break;
-          case "integer":
-            value = value.toLocaleString();
-        }
-      }
-      return value;
     }
   },
   mounted() {
