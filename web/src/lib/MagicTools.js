@@ -1,4 +1,39 @@
 let Tools = {
+    async get(api) {
+        let result
+        await fetch(api)
+            .then(payload => payload.json())
+            .then(payload => result = payload)
+            .catch(err => result = err)
+        return result
+    },
+    date: {
+        boy(i = 0) {
+            return (new Date().getFullYear() + i) + '-01-01'
+        },
+        eoy(i = 0) {
+            return (new Date().getFullYear() + i) + '-12-31'
+        },
+        bom(i = 0) {
+            return (new Date().getFullYear()) + "-" + this.trail(new Date().getMonth() + 1 + i) + '-01'
+        },
+        eom(i = 0) {
+            let tmp = new Date(new Date().getFullYear(), (new Date().getMonth() + 1 + i), 0)
+            return tmp.getFullYear() + "-" + this.trail(tmp.getMonth() + 1) + "-" + tmp.getDate()
+        },
+        boq(i = 0) {
+            let q = (Math.ceil(new Date().getMonth() + 1) % 3) + i
+            let tmp = new Date(new Date().getFullYear(), q * 3 - 2, 0)
+            return (tmp.getFullYear()) + "-" + this.trail(tmp.getMonth() + 1) + '-01'
+        },
+        eoq(i = 0) {
+            let q = (Math.ceil(new Date().getMonth() + 1) % 3) + i
+            let tmp = new Date(new Date().getFullYear(), q * 3, 0)
+            return tmp.getFullYear() + "-" + this.trail(tmp.getMonth() + 1) + "-" + tmp.getDate()
+        },
+        trail(n) { return n < 10 ? "0" + n : n }
+
+    },
     format(value, type) {
         if (value == null) return
         if (!type) return value

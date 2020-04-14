@@ -7,6 +7,7 @@ import GC from './components/GenericCRUD'
 import Jnl from './components/Jnl'
 import Balance from './components/Balance'
 import Ledger from './components/Ledger'
+import Entry from './components/Entry'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
@@ -19,7 +20,7 @@ const routes = [
     {
         path: "/files/:fileId", component: File,
         children: [
-            { path: "journal/:jnlId", component: Jnl },
+            { path: "entry", component: Entry },
             { path: "journal", component: Jnl },
             { path: "balance", component: Balance },
             { path: "ledger", component: Ledger },

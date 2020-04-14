@@ -31,7 +31,11 @@ app.use(function(req, res, next) {
 }); 
 // FILE
 app.get('/api/files/:id?', (req, res) => {
-    req.params.attributes = {include: Doc}
+    switch (req.query.include){
+        case "docs":
+            req.params.attributes = {include: Doc}
+            break
+    }
     new SequelizeHelper(File).restFind(req, res)
 })
 app.post('/api/files', (req, res) => {

@@ -30,7 +30,7 @@
 
 <script>
 // import Vue from "vue"
-import {appBus} from "./main";
+import { appBus } from "./main";
 // import MagicBus from './lib/MagicBus'
 // Vue.mixin(MagicBus)
 
@@ -48,13 +48,26 @@ export default {
     //   this.feedbackMsg = data;
     // });
     appBus.$on("feedback", data => {
-      if(!data.ok){
+      if (data) {
+        if (!data.ok) {
+          this.feedback = true;
+          this.feedbackMsg = data.message ? data.message : data;
+          if (!isNaN(data.status) && data.status < 500)
+            this.feedbackColor = "orange";
+          else this.feedbackColor = "red";
+        }
+      } else {
         this.feedback = true;
-        this.feedbackMsg = data.message;
-        if(!isNaN(data.status) && data.status >=500) this.feedbackColor="red"
-        else this.feedbackColor="orange"
+        this.feedbackMsg = "Unknow error: " + data;
+        this.feedbackColor = "pink";
       }
     });
   }
 };
 </script>
+
+<style>
+  .v-label, .v-text-field input {
+    font-size: 0.9em;
+  }
+</style>
