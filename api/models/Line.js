@@ -53,8 +53,8 @@ const Line = db.define('line',
     }
 )
 
-console.log("Line.table*", Line.tableName)
-console.log("Line.PK*", Line.primaryKeyAttributes)
+// console.log("Line.table*", Line.tableName)
+// console.log("Line.PK*", Line.primaryKeyAttributes)
 // console.log("Line.fields*", Line.rawAttributes)
 global.Line = Line
 module.exports = Line

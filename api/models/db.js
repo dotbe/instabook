@@ -13,9 +13,10 @@ const Acc = require('./Acc')
 const Jnl = require('./Jnl')
 const Doc = require('./Doc')
 const Line = require('./Line')
+const Conf = require('./Conf')
 
-File.hasMany(Doc)
-Doc.belongsTo(File) // hasOne: fk in File vs belongsTo: fk in Doc
+File.hasMany(Jnl)
+Jnl.belongsTo(File) // hasOne: fk in File vs belongsTo: fk in Doc
 
 Jnl.hasMany(Doc)
 Doc.belongsTo(Jnl)

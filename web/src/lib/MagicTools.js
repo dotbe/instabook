@@ -117,5 +117,10 @@ let Tools = {
         result.date = result.formated ? result.formated : date
         return result
     },
+    url(url, params){
+        url = new URL(url)
+        if (params) Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+        return url
+    }
 }
 export default Tools

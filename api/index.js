@@ -21,21 +21,21 @@ app.use(bodyParser.json())
 app.get("/", (req, res) => res.json(File))
 // CORS (Cross Origin Resource Sharing) -> Access-Control-Allow-Origin
 app.options('*', cors())
-app.use(function(req, res, next) { 
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization");
     res.header("Content-Type", "application/json");
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.header("Access-Control-Allow-Credentials", "true");
     next();
-}); 
+});
 // FILE
 app.get('/api/files/:id?', (req, res) => {
-    switch (req.query.include){
-        case "docs":
-            req.params.attributes = {include: Doc}
-            break
-    }
+    // switch (req.query.include) {
+    //     case "jnls":
+    //         break
+    // }
+    req.params.attributes = { include: Jnl }
     new SequelizeHelper(File).restFind(req, res)
 })
 app.post('/api/files', (req, res) => {
@@ -48,7 +48,7 @@ app.delete('/api/files/:id', (req, res) => {
     new SequelizeHelper(File).restDelete(req, res)
 })
 
-// DOC
+// DOC 
 app.get('/api/docs/:id?', (req, res) => {
     new SequelizeHelper(Doc).restFind(req, res)
 })
@@ -88,6 +88,20 @@ app.put('/api/accs/:id?', (req, res) => {
 })
 app.delete('/api/accs/:id', (req, res) => {
     new SequelizeHelper(Acc).restDelete(req, res)
+})
+
+// CONF
+app.get('/api/confs/:id?', (req, res) => {
+    new SequelizeHelper(Conf).restFind(req, res)
+})
+app.post('/api/confs', (req, res) => {
+    new SequelizeHelper(Conf).restCreate(req, res)
+})
+app.put('/api/confs/:id?', (req, res) => {
+    new SequelizeHelper(Conf).restUpdate(req, res)
+})
+app.delete('/api/confs/:id', (req, res) => {
+    new SequelizeHelper(Conf).restDelete(req, res)
 })
 
 const port = process.env.PORT || 5000

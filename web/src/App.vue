@@ -10,7 +10,7 @@
       <v-toolbar-items>
         <v-btn light to="/files">Files</v-btn>
         <v-btn light to="/accounts">Accounts</v-btn>
-        <v-btn light to="/journals">Journals</v-btn>
+        <v-btn light to="/parameters"><v-icon>mdi-wrench</v-icon></v-btn>
       </v-toolbar-items>
       <v-spacer></v-spacer>
     </v-app-bar>

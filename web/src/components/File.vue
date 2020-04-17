@@ -1,5 +1,5 @@
 <template>
-  <div v-if="jnls && file">
+  <div v-if="file">
     <v-card class="d-flex flex-row mb-2" flat tile>
       <v-card class="ma-2 pa-2" width="350">
         <div class="headline">
@@ -9,34 +9,20 @@
         <v-form ref="form" v-model="filter.valid" :lazy-validation="true">
           <!-- JOURNALS -->
           <div class="subtitle-1">Journal</div>
-          <!-- <v-list dense>
-            <v-list-item-group v-model="filter.jnl" color="primary">
-              <v-list-item v-for="jnl in jnls" :key="jnl.id" :value="jnl.id">
-                <v-list-item-content>
-                  <v-list-item-title v-text="jnl.name"></v-list-item-title>
-                  <v-list-item-subtitle v-text="jnl.type"></v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn icon :disabled="!jnl.active" :to="`/files/${file.id}/entry`">
-                  <v-icon color="primary">mdi-file-plus</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>-->
+          <v-alert v-if="!file.jnls.length" type="warning">No Journal defined</v-alert>
           <v-btn-toggle v-model="filter.jnl" dense class="vertical">
-            <v-btn v-for="jnl in jnls" :key="jnl.id" :value="jnl.id">{{jnl.type}} > {{jnl.name}}</v-btn>
+            <v-btn v-for="jnl in file.jnls" :key="jnl.id" :value="jnl">{{jnl.type}} > {{jnl.name}}</v-btn>
           </v-btn-toggle>
           <!-- DATE -->
           <v-card flat>
             <div class="subtitle-1">Date</div>
-            <v-btn-toggle v-model="filter.period" dense @change="changeDates" class="mb-3">
+            <v-btn-toggle v-model="filter.period" @change="changeDates" class="mb-3">
               <v-btn value="ty" width="10px">Y</v-btn>
-              <v-btn value="ly">Y-1</v-btn>
+              <v-btn value="ly">Y-</v-btn>
               <v-btn value="tq">Q</v-btn>
-              <v-btn value="lq">Q-1</v-btn>
-              <!-- <v-btn value="tm">M</v-btn>
-              <v-btn value="lm">M-1</v-btn>-->
+              <v-btn value="lq">Q-</v-btn>
+              <v-btn value="tm">M</v-btn>
+              <v-btn value="lm">M-</v-btn>
             </v-btn-toggle>
           </v-card>
           <v-card class="d-flex flex-row pl-10" flat>
@@ -64,17 +50,12 @@
           <!-- ACCOUNT -->
           <v-card flat>
             <div class="subtitle-1">Accounts</div>
-            <v-btn-toggle v-model="filter.acc.select" dense @change="changeDates">
+            <v-btn-toggle v-model="filter.acc.select" @change="changeDates">
               <v-btn value="all">All</v-btn>
               <v-btn value="some">Some</v-btn>
               <v-btn value="between">Between</v-btn>
             </v-btn-toggle>
 
-            <!-- <v-radio-group v-model="filter.acc.select" column dense>
-              <v-radio label="All accounts" value="all"></v-radio>
-              <v-radio label="Some" value="some"></v-radio>
-              <v-radio label="Between" value="between"></v-radio>
-            </v-radio-group>-->
             <v-autocomplete
               class="pr-0 pl-0 mt-2"
               v-show="filter.acc.select=='some'"
@@ -109,18 +90,19 @@
               </v-card>
             </v-card>
           </v-card>
-          <v-btn class="primary mt-2" :disabled="!filter.valid" @click="refresh">Apply Filter</v-btn>
+          <v-btn class="secondary mt-2" :disabled="!filter.valid" @click="refresh">Apply Filter</v-btn>
         </v-form>
       </v-card>
       <!-- TABS -->
-      <v-card class="mt-2 mb-2" width="100%">
-        <v-tabs v-model="tab">
+      <v-card class="ma-2 pa-2" width="100%">
+        <v-tabs v-model="tab" class="mb-4">
           <v-tab :to="`/files/${file.id}/entry`" :disabled="!filter.jnl">Entry</v-tab>
           <v-tab :to="`/files/${file.id}/journal`">Journal</v-tab>
           <v-tab :to="`/files/${file.id}/balance`">Balance</v-tab>
           <v-tab :to="`/files/${file.id}/ledger`">Ledger</v-tab>
+          <v-tab :to="`/files/${file.id}/parameters`"><v-icon>mdi-wrench</v-icon></v-tab>
         </v-tabs>
-        <router-view :file="file" :jnls="jnls" :accs="accs" :filter="filter"></router-view>
+        <router-view :metadata="metadata" :file="file" :accs="accs" :filter="filter"></router-view>
       </v-card>
     </v-card>
   </div>
@@ -143,7 +125,6 @@ export default {
       metadata,
       file: null,
       accs: [],
-      jnls: [],
       filter: {
         jnl: null,
         period: "ty",
@@ -210,11 +191,6 @@ export default {
       appBus.$emit("feedback", this.file);
       this.file = this.file.data;
     },
-    async fetchJnls() {
-      this.jnls = await MagicTools.get(this.metadata.jnl.api);
-      appBus.$emit("feedback", this.jnls);
-      this.jnls = this.jnls.data;
-    },
     async fetchAccs() {
       this.accs = await MagicTools.get(this.metadata.acc.api);
       appBus.$emit("feedback", this.accs);
@@ -225,7 +201,6 @@ export default {
   mounted() {
     console.log("route", this.$route.params);
     this.fetchFile();
-    this.fetchJnls();
     this.fetchAccs();
     this.changeDates();
     // console.log("boy", MagicTools.date.boy())

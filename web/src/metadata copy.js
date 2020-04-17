@@ -1,9 +1,7 @@
-let _api  ="http://localhost:5000/api"
 let metadata = {
     title: "InstaBook",
-    api: _api,
     file: {
-        api: _api + "/files",
+        api: "http://localhost:5000/api/files",
         refetch: false,
         actions: {
             del: true,
@@ -22,9 +20,9 @@ let metadata = {
         form: {
             // width: "500px",
         },
-        fields: {
-            name:{
-                // value: 'name',
+        fields: [
+            {
+                value: 'name',
                 text: 'Name',
                 disabled: true,
                 required: true,
@@ -34,16 +32,30 @@ let metadata = {
                 // width: "30em",
                 // email: true,
             },
-            taxRef:{
-                // value: 'taxRef',
+            {
+                value: 'taxRef',
                 text: 'VAT',
                 required: false,
                 // width: "30em"
             },
-        }
+            {
+                value: 'countDoc',
+                text: '# Docs',
+                type: 'integer',
+                readonly: true,
+                width: "10em",
+            },
+            {
+                value: 'lastRegDate',
+                type: 'date',
+                text: 'Last',
+                readonly: true,
+                width: "10em"
+            },
+        ]
     },
     acc: {
-        api: _api + "/accs",
+        api: "http://localhost:5000/api/accs",
         refetch: false,
         actions: {
             del: true,
@@ -57,9 +69,9 @@ let metadata = {
         form: {
             // width: "500px",
         },
-        fields: {
-            code:{
-                // value: 'code',
+        fields: [
+            {
+                value: 'code',
                 text: 'Code',
                 disabled: true,
                 required: true,
@@ -69,23 +81,23 @@ let metadata = {
                 // width: "30em",
                 // email: true,
             },
-            name:{
-                // value: 'name',
+            {
+                value: 'name',
                 text: 'Name',
                 required: true,
                 // width: "30em"
             },
-            active:{
-                // value: 'active',
+            {
+                value: 'active',
                 text: 'Active',
                 type: 'checkbox',
                 width: "10em",
                 default: true,
             },
-        },
+        ],
     },
     jnl: {
-        api: _api + "/jnls",
+        api: "http://localhost:5000/api/jnls",
         refetch: false,
         actions: {
             del: true,
@@ -99,12 +111,9 @@ let metadata = {
         form: {
             // width: "500px",
         },
-        fields: {
-            fileId:{
-                type: "hidden"
-            },
-            type:{
-                // value: 'type',
+        fields: [
+            {
+                value: 'type',
                 text: 'Type',
                 disabled: true,
                 required: true,
@@ -113,51 +122,21 @@ let metadata = {
                 // width: "30em",
                 // email: true,
             },
-            name:{
-                // value: 'name',
+            {
+                value: 'name',
                 text: 'Name',
                 required: true,
                 // width: "30em"
             },
-            active:{
-                // value: 'active',
+            {
+                value: 'active',
                 text: 'Active',
                 type: 'checkbox',
                 width: "10em",
+                required: true,
                 default: true,
             },
-        },
-    },
-    conf: {
-        api: _api + "/confs",
-        refetch: false,
-        actions: {
-            del: true,
-            edit: true,
-        },
-        labels: {
-            list: "Configuration",
-            add: "New Configuration",
-            edit: "Edit Configuration",
-        },
-        form: {
-            // width: "500px",
-        },
-        fields: {
-            id:{
-                // value: 'type',
-                text: 'Name',
-                required: true,
-                disabled: true,
-                // width: "30em",
-                // email: true,
-            },
-            val:{
-                // value: 'name',
-                text: 'Value',
-                // width: "30em"
-            },
-        },
+        ],
     },
 }
 

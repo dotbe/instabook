@@ -5,12 +5,12 @@
       v-bind:headers="headers"
       :calculate-widths="true"
       :dense="false"
-      loading="!fetched"
+      :loading="!fetched"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>{{config.labels.list}}</v-toolbar-title>
-          <v-icon @click="fetch(true)" class="mx-2" color="green">mdi-refresh-circle</v-icon>
+          <v-icon @click="fetch(true)" class="mx-2" color="secondary">mdi-refresh-circle</v-icon>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
           <v-btn color="primary" class="mb-2" @click="add">{{config.labels.add}}</v-btn>
@@ -65,35 +65,39 @@
         <v-card-text>
           <slot v-bind:item="editedItem">
             <v-form ref="form" v-model="valid" :lazy-validation="false">
-              <v-row v-for="(field, index) in config.fields" :key="field.value">
+              <v-row v-for="fieldName in fieldNames" :key="fieldName">
                 <v-select
-                  v-if="field.type == 'select'"
-                  v-model="editedItem[field.value]"
-                  :items="field.options"
-                  :label="field.text"
-                  :disabled="editedIndex!=-1 && field.disabled"
-                  :readonly="field.readonly"
-                  :filled="field.readonly"
-                  :rules="fieldRules(field)"
+                  v-if="config.fields[fieldName].type == 'select'"
+                  v-model="editedItem[fieldName]"
+                  :items="config.fields[fieldName].options"
+                  :label="config.fields[fieldName].text"
+                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                  :readonly="config.fields[fieldName].readonly"
+                  :filled="config.fields[fieldName].readonly"
+                  :rules="fieldRules(config.fields[fieldName])"
                 />
                 <v-checkbox
-                  v-else-if="field.type == 'checkbox'"
-                  v-model="editedItem[field.value]"
-                  :label="field.text"
-                  :disabled="editedIndex!=-1 && field.disabled"
-                  :readonly="field.readonly"
-                  :filled="field.readonly"
-                  :rules="fieldRules(field)"
+                  v-else-if="config.fields[fieldName].type == 'checkbox'"
+                  v-model="editedItem[fieldName]"
+                  :label="config.fields[fieldName].text"
+                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                  :readonly="config.fields[fieldName].readonly"
+                  :filled="config.fields[fieldName].readonly"
+                  :rules="fieldRules(config.fields[fieldName])"
+                />
+                <input
+                  v-else-if="config.fields[fieldName].type == 'hidden'"
+                  type="hidden"
+                  :value="editedItem[fieldName]"
                 />
                 <v-text-field
-                  v-else
-                  :autofocus="!index"
-                  v-model="editedItem[field.value]"
-                  :label="field.text"
-                  :disabled="editedIndex!=-1 && field.disabled"
-                  :readonly="field.readonly"
-                  :filled="field.readonly"
-                  :rules="fieldRules(field)"
+                  v-else-if="fieldName != 'actions'"
+                  v-model="editedItem[fieldName]"
+                  :label="config.fields[fieldName].text"
+                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                  :readonly="config.fields[fieldName].readonly"
+                  :filled="config.fields[fieldName].readonly"
+                  :rules="fieldRules(config.fields[fieldName])"
                   @keyup.enter="save"
                 />
               </v-row>
@@ -116,7 +120,7 @@
 import MagicTools from "./MagicTools";
 
 export default {
-  props: ["config"],
+  props: ["config", "params"],
   data() {
     return {
       MagicTools,
@@ -135,7 +139,18 @@ export default {
         : "40em";
     },
     headers() {
-      return [...this.config.fields, { value: "actions", sortable: false }];
+      let fl = [];
+      for (const fn in this.config.fields) {
+        let f = Object.assign({}, this.config.fields[fn]);
+        f.value = fn;
+        if (f.type != "hidden") fl.push(f);
+      }
+      fl.push({ value: "actions", sortable: false });
+      console.log("headers", fl);
+      return fl;
+    },
+    fieldNames() {
+      return Object.keys(this.config.fields);
     }
   },
   methods: {
@@ -143,7 +158,7 @@ export default {
       if (force === true || this.config.refetch) this.items = [];
       if (this.items.length == 0) {
         this.fetched = false;
-        fetch(this.config.api)
+        fetch(MagicTools.url(this.config.api, this.params))
           .then(payload => payload.json())
           .then(payload => {
             if (this.isOk(payload)) {
@@ -159,7 +174,9 @@ export default {
     del(item) {
       const index = this.items.indexOf(item);
       console.log("delete", item);
-      if (confirm(`Confirm delete "${item[this.config.fields[0].value]}"?`)) {
+      if (
+        confirm(`Confirm delete "${item[Object.keys(this.config.fields)[0]]}"?`)
+      ) {
         fetch(this.config.api + "/" + item.id, { method: "DELETE" })
           .then(payload => payload.json())
           .then(payload => {
@@ -226,9 +243,9 @@ export default {
     },
     add() {
       this.editedItem = {};
-      for (let i in this.config.fields) {
-        let field = this.config.fields[i];
-        this.editedItem[field.value] = field.default ? field.default : null;
+      for (let fn in this.config.fields) {
+        let field = this.config.fields[fn];
+        this.editedItem[fn] = field.default ? field.default : null;
       }
       this.editedIndex = -1;
       this.dialog = true;

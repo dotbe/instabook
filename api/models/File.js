@@ -29,21 +29,9 @@ const File = db.define('file',
                 }
             }
         },
-        countDoc: {
-            label: "# Docs",
-            calculated: true,
-            type: Sequelize.INTEGER,
-        },
-        lastRegDate: {
-            label: "Last date",
-            calculated: true,
-            type: Sequelize.DATEONLY,
-        },
-
     },
     {
         tableName: "file",
-        viewName: "v_file",
         freezeTableName: true,
         order: [["name" ,"ASC"]],
        
@@ -51,8 +39,8 @@ const File = db.define('file',
 )
 
 
-console.log("File.table*", File.tableName)
-console.log("File.PK*", File.primaryKeyAttributes)
+// console.log("File.table*", File.tableName)
+// console.log("File.PK*", File.primaryKeyAttributes)
 //console.log("File.fields*", File.rawAttributes)
 global.File = File
 module.exports = File

@@ -28,7 +28,7 @@ const Jnl = db.define('jnl',
         },
         type: {
             label: "Reference",
-            type: Sequelize.ENUM("BUY", "SELL", "FINANCE", "DIVERSE"),
+            type: Sequelize.ENUM("BUY", "SELL", "BUY-CN", "SELL-CN", "FINANCE", "DIVERSE"),
             allowNull: false,
             unique: true,
             validate: {
@@ -36,7 +36,12 @@ const Jnl = db.define('jnl',
                     msg: "Journal Type is required"
                 }
             }
-        }
+        },
+        fileId: {
+            label: "File",
+            allowNull: false,
+            type: Sequelize.STRING(50), 
+        },
     },
     {
         freezeTableName: true,
@@ -44,8 +49,8 @@ const Jnl = db.define('jnl',
     }
 )
 
-console.log("Jnl.table*", Jnl.tableName)
-console.log("Jnl.PK*", Jnl.primaryKeyAttributes)
+// console.log("Jnl.table*", Jnl.tableName)
+// console.log("Jnl.PK*", Jnl.primaryKeyAttributes)
 // console.log("Jnl.fiels*", Jnl.rawAttributes)
 global.Jnl = Jnl
 module.exports = Jnl 

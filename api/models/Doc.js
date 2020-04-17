@@ -57,8 +57,8 @@ const Doc = db.define('doc',
     }
 )
 
-console.log("Doc.table*", Doc.tableName)
-console.log("Doc.PK*", Doc.primaryKeyAttributes)
+// console.log("Doc.table*", Doc.tableName)
+// console.log("Doc.PK*", Doc.primaryKeyAttributes)
 // console.log("Doc.fields*", Doc.rawAttributes)
 
 global.Doc = Doc
