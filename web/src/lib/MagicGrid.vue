@@ -57,7 +57,7 @@
     </v-data-table>
 
     <v-dialog v-model="dialog" :max-width="dialogMaxWidth">
-      <v-card>
+      <v-card v-if="dialog">
         <v-card-title>
           <span class="headline">{{editedIndex==-1?config.labels.add:config.labels.edit}}</span>
         </v-card-title>
@@ -258,8 +258,8 @@ export default {
       });
     },
     isOk(payload) {
-      if (payload.ok) return true;
       this.$emit("feedback", payload);
+      if (payload.ok) return true;
       return false;
     },
     fieldRules(field) {
@@ -282,9 +282,20 @@ export default {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || "Invalid e-mail.";
         });
+      if (field.type == "integer")
+        rules.push(value => {
+          const pattern = /^[-+]?\d?$/;
+          return pattern.test(value) || "Invalid Integer";
+        });
+      if (field.type == "number")
+        rules.push(value => {
+          const pattern = /^[-+]?[0-9]?(\.[0-9]+)?$/;
+          return pattern.test(value) || "Invalid Number";
+        });
       if (field.regexp)
         rules.push(value => field.regexp[0].test(value) || field.regexp[1]);
       if (field.rules) rules.push(...field.rules);
+      // console.log("rules: ", field.type, rules)
       return rules;
     }
   },

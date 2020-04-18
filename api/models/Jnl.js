@@ -6,6 +6,11 @@ const Jnl = db.define('jnl',
             allowNull: false,
             primaryKey: true,
         },
+        fileId: {
+            label: "File",
+            allowNull: false,
+            type: Sequelize.STRING(50),
+        },
         name: {
             label: "Journal Name",
             type: Sequelize.STRING(50),
@@ -28,7 +33,7 @@ const Jnl = db.define('jnl',
         },
         type: {
             label: "Reference",
-            type: Sequelize.ENUM("BUY", "SELL", "BUY-CN", "SELL-CN", "FINANCE", "DIVERSE"),
+            type: Sequelize.ENUM("BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"),
             allowNull: false,
             unique: true,
             validate: {
@@ -37,15 +42,14 @@ const Jnl = db.define('jnl',
                 }
             }
         },
-        fileId: {
-            label: "File",
-            allowNull: false,
-            type: Sequelize.STRING(50), 
+        nextRef: {
+            label: "Next Document Number",
+            type: Sequelize.INTEGER,
         },
     },
     {
         freezeTableName: true,
-        order: [["type" ,"ASC"], ["name" ,"ASC"]]
+        order: [["type", "ASC"], ["name", "ASC"]]
     }
 )
 

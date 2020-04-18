@@ -20,6 +20,8 @@ export default {
   },
   methods: {
     feedback(data) {
+      // alert(data.operation)
+      if(data.operation != "R") this.$emit("feedback", "jnl_update");
       appBus.$emit("feedback", data);
     }
   }

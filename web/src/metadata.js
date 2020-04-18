@@ -2,6 +2,17 @@ let _api  ="http://localhost:5000/api"
 let metadata = {
     title: "InstaBook",
     api: _api,
+    icons:{
+        poeple: "mdi-face",
+        date: "mdi-calendar",
+        account: "mdi-pound-box",
+        BUY: "mdi-inbox-arrow-down",
+        BUY_CN: "mdi-inbox-arrow-down-outline",
+        SELL: "mdi-inbox-arrow-up",
+        SELL_CN: "mdi-inbox-arrow-up-outline",
+        FINANCE: "mdi-currency-eur",
+        DIVERSE: "mdi-inbox",
+    },
     file: {
         api: _api + "/files",
         refetch: false,
@@ -108,7 +119,7 @@ let metadata = {
                 text: 'Type',
                 disabled: true,
                 required: true,
-                options:["BUY", "SELL", "BUY-CN", "SELL-CN", "FINANCE", "DIVERSE"],
+                options:["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
                 type: 'select',
                 // width: "30em",
                 // email: true,
@@ -117,6 +128,12 @@ let metadata = {
                 // value: 'name',
                 text: 'Name',
                 required: true,
+                // width: "30em"
+            },
+            nextRef:{
+                // value: 'name',
+                text: 'Next Doc Num',
+                type: 'integer'
                 // width: "30em"
             },
             active:{

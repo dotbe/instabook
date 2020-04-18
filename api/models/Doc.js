@@ -28,13 +28,13 @@ const Doc = db.define('doc',
             }
         },
         ref: {
-            label: "Reference",
+            label: "Document Number",
             type: Sequelize.INTEGER,
             allowNull: false,
             unique: true,
             validate: {
                 notEmpty: {
-                    msg: "Document Reference (number) is required"
+                    msg: "Document Number is required"
                 }
             }
         },

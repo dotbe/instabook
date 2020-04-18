@@ -3,7 +3,8 @@ const db = new Sequelize('instabook', 'root', 'online', {
   logging: console.log,
   hostname: 'localhost',
   dialect: 'mysql',
-  operatorAliases: false
+  operatorAliases: false,
+  define:{timestamps: false},
 })
 global.db = db;
 module.exports = db;

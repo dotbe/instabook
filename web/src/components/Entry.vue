@@ -1,10 +1,9 @@
 <template>
   <div class v-if="filter.jnl">
     <div class="headline">
-      {{filter.jnl.type}}
-      <v-icon class="mb-1">mdi-greater-than</v-icon>
+      <v-icon class="mb-1">{{metadata.icons[filter.jnl.type]}}</v-icon>
       {{filter.jnl.name}}
-      <v-icon class="mb-1">mdi-minus</v-icon>
+      <v-icon class="mb-1">{{metadata.icons.date}}</v-icon>
       {{filter.from.value}}
       <v-icon class="mb-1">mdi-arrow-right</v-icon>
       {{filter.till.value}}
@@ -68,7 +67,9 @@ export default {
   watch:{
     "filter.jnl" (o, n){
       this.refChecker()
-      alert('changed' + o + n)
+      o
+      n
+      //alert('changed' + o + n)
     }
   },
   methods: {
@@ -95,7 +96,7 @@ export default {
   },
   mounted(){
     this.refChecker()
-    if(this.previousRef == null)alert(this.filter.jnl.name)
+    //if(this.previousRef == null) alert(this.filter.jnl.name)
   }
 };
 </script>

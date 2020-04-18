@@ -43,6 +43,7 @@ returns a structure
 {
     "status": 200, // or 500 or 404
     "message": "Success", // or "Not Found" or and error message
+    "operation": "R" // or "C", "U", "D" (for CRUD)
     "data": [], // search result
     "parameters": { // parameter 
         "findAttr": {}, // attributes injected in the find() method

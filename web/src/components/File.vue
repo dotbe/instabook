@@ -11,7 +11,10 @@
           <div class="subtitle-1">Journal</div>
           <v-alert v-if="!file.jnls.length" type="warning">No Journal defined</v-alert>
           <v-btn-toggle v-model="filter.jnl" dense class="vertical">
-            <v-btn v-for="jnl in file.jnls" :key="jnl.id" :value="jnl">{{jnl.type}} > {{jnl.name}}</v-btn>
+            <v-btn v-for="jnl in file.jnls" :key="jnl.id" :value="jnl">
+              <v-icon>{{metadata.icons[jnl.type]}}</v-icon>
+              {{jnl.name}}
+            </v-btn>
           </v-btn-toggle>
           <!-- DATE -->
           <v-card flat>
@@ -100,9 +103,17 @@
           <v-tab :to="`/files/${file.id}/journal`">Journal</v-tab>
           <v-tab :to="`/files/${file.id}/balance`">Balance</v-tab>
           <v-tab :to="`/files/${file.id}/ledger`">Ledger</v-tab>
-          <v-tab :to="`/files/${file.id}/parameters`"><v-icon>mdi-wrench</v-icon></v-tab>
+          <v-tab :to="`/files/${file.id}/parameters`">
+            <v-icon>mdi-wrench</v-icon>
+          </v-tab>
         </v-tabs>
-        <router-view :metadata="metadata" :file="file" :accs="accs" :filter="filter"></router-view>
+        <router-view
+          :metadata="metadata"
+          :file="file"
+          :accs="accs"
+          :filter="filter"
+          @feedback="feedback"
+        ></router-view>
       </v-card>
     </v-card>
   </div>
@@ -111,6 +122,9 @@
 <style>
 .vertical {
   flex-direction: column;
+}
+.vertical .v-btn__content {
+  justify-content: left
 }
 </style>
 <script>
@@ -150,6 +164,12 @@ export default {
     refresh() {
       alert("ok");
     },
+    feedback(data){
+      switch(data){
+        case "jnl_update":
+          this.fetchFile()
+      }
+    },
     changeDates() {
       switch (this.filter.period) {
         case "ty":
@@ -184,12 +204,20 @@ export default {
       data.value = dv.date;
       data.errors = dv.errors;
     },
+    sortJnls() {
+      this.file.jnls.sort((a, b) => {
+        let n1 = this.metadata.jnl.fields.type.options.indexOf(a.type);
+        let n2 = this.metadata.jnl.fields.type.options.indexOf(b.type);
+        return n1 < n2 ? -1 : 1;
+      });
+    },
     async fetchFile() {
       this.file = await MagicTools.get(
         this.metadata.file.api + "/" + this.$route.params.fileId
       );
       appBus.$emit("feedback", this.file);
       this.file = this.file.data;
+      this.sortJnls();
     },
     async fetchAccs() {
       this.accs = await MagicTools.get(this.metadata.acc.api);

@@ -4,22 +4,21 @@ const { v4: uuidv4 } = require('uuid');
 class SequelizeHelper {
     constructor(entity) {
         this.entity = entity
-        this.resp = { ok: true, status: 200, message: "Success", data: null }
+        this.resp = { ok: true, status: 200, message: "Success", operation: null, data: null }
     }
     errorHandler(err) {
         this.resp.message = err.message
         this.resp.status = 500
         this.resp.ok = false
-        if (err.original && err.original.sqlMessage) this.resp.message += ": " + err.original.sqlMessage
+        // if (err.original && err.original.sqlMessage) this.resp.message += ": " + err.original.sqlMessage
         this.resp.message = "Error! " + this.fieldToLabel(this.resp.message)
         console.error("*ERROR*", new Date(), "\n", err)
     }
     fieldToLabel(msg) {
-        if (!msg.includes(this.entity.tableName + ".")) return msg
         // improve error message, replace field by label
         for (let prop in this.entity.rawAttributes) {
             if (this.entity.rawAttributes[prop].label) {
-                let re = new RegExp(this.entity.tableName + "\." + prop + "[^']*", 'gi')
+                let re = new RegExp("(" + this.entity.tableName + "\.)?" + prop + "[^']*", 'gi')
                 msg = msg.replace(re, this.entity.rawAttributes[prop].label)
             }
         }
@@ -27,6 +26,7 @@ class SequelizeHelper {
     }
     async find(params) {
         let tmpTableName
+        this.resp.operation = this.resp.operation == null ? "R" : this.resp.operation
         if (this.entity.options.viewName) {
             tmpTableName = this.entity.tableName
             this.entity.tableName = this.entity.options.viewName
@@ -191,6 +191,7 @@ class SequelizeHelper {
         return this
     }
     async create(values) {
+        this.resp.operation = "C"
         // UUID as default ID if string and not provided
         if (this.type(this.entity.rawAttributes[this.entity.primaryKeyAttributes]) == "string" &&
             !values[this.entity.primaryKeyAttributes]) {
@@ -209,6 +210,7 @@ class SequelizeHelper {
         return this
     }
     async update(values) {
+        this.resp.operation  ="U"
         this.dataCleaning(values)
         const where = { [this.entity.primaryKeyAttributes]: values[this.entity.primaryKeyAttributes] }
         this.removePK(values)
@@ -228,6 +230,7 @@ class SequelizeHelper {
     }
     async delete(values) {
         this.resp = await this.find(values)
+        this.resp.operation = "D"
         if (this.resp.data == null) {
             this.resp.ok = false
             this.resp.status = 404
