@@ -109,6 +109,7 @@
         </v-tabs>
         <router-view
           :metadata="metadata"
+          :config="config"
           :file="file"
           :accs="accs"
           :filter="filter"
@@ -137,6 +138,7 @@ export default {
     return {
       MagicTools,
       metadata,
+      config:{},
       file: null,
       accs: [],
       filter: {
@@ -224,12 +226,18 @@ export default {
       appBus.$emit("feedback", this.accs);
       this.accs = this.accs.data;
       this.accs.forEach(el => (el.label = el.code + "-" + el.name));
+    },
+    async fetchConfig() {
+      let confs = await MagicTools.get(this.metadata.conf.api);
+      appBus.$emit("feedback", confs);
+      confs.data.forEach(el => this.config[el.id] = el.val);
     }
   },
   mounted() {
     console.log("route", this.$route.params);
     this.fetchFile();
     this.fetchAccs();
+    this.fetchConfig();
     this.changeDates();
     // console.log("boy", MagicTools.date.boy())
     // console.log("eoy", MagicTools.date.eoy())

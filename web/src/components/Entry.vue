@@ -8,8 +8,8 @@
       <v-icon class="mb-1">mdi-arrow-right</v-icon>
       {{filter.till.value}}
     </div>
-    <hr class="mb-5"/>
-    <v-form ref="entryForm" v-model="entry.valid" :lazy-validation="true">
+    <hr class="mb-5" />
+    <v-form ref="entryForm" v-model="valid" :lazy-validation="true">
       <v-text-field
         v-model="entry.ref"
         label="Reference"
@@ -41,6 +41,8 @@
       {{jnlCat()}}
     </v-form>
     {{filter}}
+    <hr />
+    {{config}}
   </div>
 </template>
 <script>
@@ -49,8 +51,14 @@ export default {
   data() {
     return {
       previousRef: null,
+      valid: false,
+      lastDoc:{},
       entry: {
-        valid: false,
+        ref: null,
+        regDate: null,
+        acc: null
+      },
+      newEntry: {
         ref: null,
         regDate: null,
         acc: null
@@ -60,15 +68,31 @@ export default {
         regDate: null,
         acc: null
       }
+    };
+  },
+  props: ["metadata", "config", "file", "accs", "filter"],
+  computed: {
+    nextRef() {
+      if (this.entry.ref == null) {
+        return this.filter.jnl.nextRef == null ? 1 : this.filter.jnl.nextRef;
+      }
+      return this.entry.ref;
     }
   },
-  props: ["metadata", "file", "accs", "filter"],
-  computed: {},
-  watch:{
-    "filter.jnl" (o, n){
-      this.refChecker()
-      o
-      n
+  watch: {
+    "filter.jnl"(o, n) {
+      this.entry = this.newEntry;
+      // TODO
+      if (!this.filter.jnl) return;
+      let docs = MagicTools.get(
+        `${this.metadata.doc.api}?jnl.eq=${this.filter.jnl.id}&grid.order=ref%20desc&grid.max=1`
+      );
+      
+      this.lastDoc = docs[0]
+      this.entry.ref =
+        this.filter.jnl.nextRef == null ? 1 : this.filter.jnl.nextRef;
+      o;
+      n;
       //alert('changed' + o + n)
     }
   },
@@ -80,22 +104,23 @@ export default {
       this.errors.regDate = dv.errors;
     },
     refChecker() {
-      if (this.lastRef == null){
-        // fetch last ref
-
-     // MagicTools.get(`${this.metadata.doc.api}?jnlId.eq=${this.filter.jnl.id}" + )
+      if (this.entry.ref == null) {
+        this.entry.ref =
+          this.filter.jnl.nextRef == null ? 1 : this.filter.jnl.nextRef;
       }
+
+      // fetch last ref
+      // MagicTools.get(`${this.metadata.doc.api}?jnlId.eq=${this.filter.jnl.id}" + )
     },
-    accChecker() {
-    },
+    accChecker() {},
     jnlCat() {
       if (this.filter.jnl.type.match(/BUY/)) return "BUY";
       if (this.filter.jnl.type.match(/SELL/)) return "SELL";
       return this.filter.jnl.type;
-    },
+    }
   },
-  mounted(){
-    this.refChecker()
+  mounted() {
+    this.refChecker();
     //if(this.previousRef == null) alert(this.filter.jnl.name)
   }
 };

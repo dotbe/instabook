@@ -130,12 +130,12 @@ let metadata = {
                 required: true,
                 // width: "30em"
             },
-            nextRef:{
-                // value: 'name',
-                text: 'Next Doc Num',
-                type: 'integer'
-                // width: "30em"
-            },
+            // nextRef:{
+            //     // value: 'name',
+            //     text: 'Next Doc Num',
+            //     type: 'integer'
+            //     // width: "30em"
+            // },
             active:{
                 // value: 'active',
                 text: 'Active',
@@ -172,6 +172,13 @@ let metadata = {
             val:{
                 // value: 'name',
                 text: 'Value',
+                // width: "30em"
+            },
+            descr:{
+                // value: 'name',
+                text: 'Description',
+                readonly: true,
+                type: 'textarea'
                 // width: "30em"
             },
         },

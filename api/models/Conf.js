@@ -15,6 +15,10 @@ const Conf = db.define('Conf',
             label: "Value",
             type: Sequelize.STRING(50),
         },
+        descr: {
+            label: "Value",
+            type: Sequelize.TEXT,
+        },
     },
     {
         freezeTableName: true,

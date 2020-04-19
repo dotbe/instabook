@@ -30,7 +30,10 @@ app.use(function (req, res, next) {
     next();
 });
 // FILE
-app.get('/api/files/:id?', (req, res) => {
+app.get('/api/files', (req, res) => {
+    new SequelizeHelper(File).restFind(req, res)
+})
+app.get('/api/files/:id', (req, res) => {
     // switch (req.query.include) {
     //     case "jnls":
     //         break
@@ -50,6 +53,7 @@ app.delete('/api/files/:id', (req, res) => {
 
 // DOC 
 app.get('/api/docs/:id?', (req, res) => {
+    req.params.attributes = { include: Line }
     new SequelizeHelper(Doc).restFind(req, res)
 })
 app.post('/api/docs', (req, res) => {

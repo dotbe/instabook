@@ -16,17 +16,17 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `jnl`
+-- Table structure for table `acc`
 --
 
-DROP TABLE IF EXISTS `jnl`;
+DROP TABLE IF EXISTS `acc`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `jnl` (
+CREATE TABLE `acc` (
   `id` varchar(50) NOT NULL,
+  `code` varchar(50) NOT NULL,
   `name` varchar(50) NOT NULL,
   `active` tinyint(1) NOT NULL,
-  `type` varchar(50) NOT NULL,
   `createdAt` datetime DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -34,13 +34,13 @@ CREATE TABLE `jnl` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `jnl`
+-- Dumping data for table `acc`
 --
 
-LOCK TABLES `jnl` WRITE;
-/*!40000 ALTER TABLE `jnl` DISABLE KEYS */;
-INSERT INTO `jnl` VALUES ('730940b8-4b13-43a9-ab1d-3ca1efaa3fb6','OD',1,'DIVERSE','2020-04-09 13:23:32','2020-04-09 13:23:32'),('7f213fac-7899-473a-9c7b-598b87106f1e','BELFIUS',1,'FINANCE','2020-04-09 13:22:33','2020-04-09 13:22:33'),('a','BUYING',1,'BUY',NULL,'2020-04-09 14:39:43'),('b545c560-d15f-49b1-816c-d375d8197760','SELLING',0,'SELL','2020-04-09 11:32:44','2020-04-09 13:47:28');
-/*!40000 ALTER TABLE `jnl` ENABLE KEYS */;
+LOCK TABLES `acc` WRITE;
+/*!40000 ALTER TABLE `acc` DISABLE KEYS */;
+INSERT INTO `acc` VALUES ('00da7662-8dc3-4c65-9704-14cf5e927a6d','600000','Matières premières',1,'2020-04-16 10:08:41','2020-04-16 10:13:28'),('a','1010000','Capital non appelle',1,'2020-03-22 15:13:53','2020-04-11 14:54:34'),('a712e22e-28a3-488c-bbab-5ccf43262e53','1000000','Capital',1,'2020-03-22 13:38:50','2020-03-22 15:13:39');
+/*!40000 ALTER TABLE `acc` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-14 23:34:05
+-- Dump completed on 2020-04-18 13:28:20

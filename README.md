@@ -5,11 +5,11 @@ What?
 An easy accounting webapp using mysql, node, express, sequelize, vue.js
 
 Main entities: 
-- file
-- jnl
-- account
-- doc
-    - line
+- file (a File is an entity - company...)
+  - jnl (a File has many Journals)
+    - doc (a Journal has many Documents)
+      - line (a Document has many Lines)
+- account (Chart of Accounts is common to all Files)
 
 Why?
 ---
@@ -55,7 +55,10 @@ returns a structure
             "records": 19 // number of records if count is true
             "pages": 1
         },
-        "filters": {}
+        "filters": {
+          "someField":{"operator":"between", "value":"1,100"}
+          "someOtherField":{"operator":"like", "value":"XYZ"}
+        }
     }
 }
 ```

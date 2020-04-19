@@ -42,10 +42,10 @@ const Jnl = db.define('jnl',
                 }
             }
         },
-        nextRef: {
-            label: "Next Document Number",
-            type: Sequelize.INTEGER,
-        },
+        // nextRef: {
+        //     label: "Next Document Number",
+        //     type: Sequelize.INTEGER,
+        // },
     },
     {
         freezeTableName: true,

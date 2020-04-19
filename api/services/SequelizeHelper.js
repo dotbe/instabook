@@ -55,6 +55,7 @@ class SequelizeHelper {
                 ...parameters.attributes,
                 where: { [Op.and]: where },
                 order: this.order(parameters.grid.order),
+                limit: parameters.grid.max
                 //attributes: {exclude: ['createdAt', 'updatedAt']}
             })
                 .then(result => {
@@ -90,7 +91,17 @@ class SequelizeHelper {
             if (aParam.length == 2) {
                 switch (aParam[0]) {
                     case "grid":
-                        result.grid[aParam[1]] = params[param]
+                        switch (aParam[1]) {
+                            case "count":
+                                result.grid[aParam[1]] = this.convert(params[param], "boolean")
+                                break
+                            case "max":
+                                result.grid[aParam[1]] = this.convert(params[param], "number")
+                                break
+                            default:
+                                result.grid[aParam[1]] = params[param]
+                        }
+
                         break
                     default:
                         result.filters[aParam[0]] = { operator: aParam[1], value: params[param] }
@@ -136,6 +147,7 @@ class SequelizeHelper {
         // console.log("***", filters)
         for (const field in filters) {
             if (this.entity.rawAttributes[field]) {
+                let type = this.type(this.entity.rawAttributes[field].type)
                 switch (filters[field].operator) {
                     case "start":
                         result[field] = { [Op.like]: filters[field].value + "%" }
@@ -161,24 +173,31 @@ class SequelizeHelper {
                         break
                     case "between":
                         const vals = filters[field].value.split(",")
-                        if (this.type(this.entity.rawAttributes[field].type) == "date") {
-                            vals[0] = vals[0].length > 0 ? new Date(vals[0]) : ""
-                            vals[1] = vals[1].length > 0 ? new Date(vals[1]) : ""
-                        }
-                        if (vals.length == 2) {
-                            if (vals[0].toString().length > 0 && vals[1].toString().length > 0) {
-                                result[field] = { [Op.between]: [vals[0], davals[1]] }
-                            }
-                            else if (vals[0].toString().length > 0) {
-                                result[field] = { [Op.gte]: vals[0] }
-                            }
-                            else {
-                                result[field] = { [Op.lte]: vals[1] }
-                            }
-                        }
+                        vals[0] = this.convert(vals[0], type)
+                        vals[1] = this.convert(vals[1], type)
+                        // if (this.type(this.entity.rawAttributes[field].type) == "date") {
+                        //     vals[0] = vals[0].length > 0 ? new Date(vals[0]) : ""
+                        //     vals[1] = vals[1].length > 0 ? new Date(vals[1]) : ""
+                        // }
+                        // else if (this.type(this.entity.rawAttributes[field].type) == "number") {
+                        //     vals[0] = vals[0].length > 0 ? Number(vals[0]) : ""
+                        //     vals[1] = vals[1].length > 0 ? Number(vals[1]) : ""
+                        // }
+                        // if (vals.length == 2) {
+                        if (vals[0] && vals[1])
+                            result[field] = { [Op.between]: [vals[0], vals[1]] }
+                        else if (vals[0])
+                            result[field] = { [Op.gte]: vals[0] }
+                        else
+                            result[field] = { [Op.lte]: vals[1] }
+                        // }
                         break
                     default: // eq, ne, lt, lte, gt, gte, like, notLike
-                        result[field] = { [Op[filters[field].operator]]: filters[field].value }
+                        // let val = this.convert(filters[field].value, this.type(this.entity.rawAttributes[field].type))
+                        // console.log("**",this.type(this.entity.rawAttributes[field].type))
+                        result[field] = {
+                            [Op[filters[field].operator]]: this.convert(filters[field].value, type)
+                        }
                 }
             }
         }
@@ -210,7 +229,7 @@ class SequelizeHelper {
         return this
     }
     async update(values) {
-        this.resp.operation  ="U"
+        this.resp.operation = "U"
         this.dataCleaning(values)
         const where = { [this.entity.primaryKeyAttributes]: values[this.entity.primaryKeyAttributes] }
         this.removePK(values)
@@ -265,13 +284,23 @@ class SequelizeHelper {
     removePK(data) {
         delete data[this.entity.primaryKeyAttributes]
     }
-    type(field) {
-        if (!field.type) return "string"
-        let s = field.type.toString()
-        if (s.match(/NUM|INT|DOUBLE|FLOAT/)) return "number"
+    type(type) {
+        // console.log("type: ", type)
+        if (!type) return "string"
+        let s = type.toString()
+        if (s.match(/NUMBER|INTEGER|DOUBLE|FLOAT/)) return "number"
         if (s.match(/DATE/)) return "date"
         if (s.match(/BOOLEAN/)) return "boolean"
         return "string"
+    }
+    convert(val, type) {
+        if (val == "") return null
+        switch (type) {
+            case "number": return Number(val)
+            case "boolean": return (val == "true" || val == true || val == "on") ? true : false
+            case "date": return new Date(val)
+        }
+        return val
     }
 }
 

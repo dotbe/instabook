@@ -16,31 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `acc`
+-- Table structure for table `conf`
 --
 
-DROP TABLE IF EXISTS `acc`;
+DROP TABLE IF EXISTS `conf`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `acc` (
-  `id` varchar(50) NOT NULL,
-  `code` varchar(50) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `active` tinyint(1) NOT NULL,
-  `createdAt` datetime DEFAULT NULL,
-  `updatedAt` datetime DEFAULT NULL,
+CREATE TABLE `conf` (
+  `id` varchar(20) NOT NULL,
+  `val` varchar(50) DEFAULT NULL,
+  `descr` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `acc`
+-- Dumping data for table `conf`
 --
 
-LOCK TABLES `acc` WRITE;
-/*!40000 ALTER TABLE `acc` DISABLE KEYS */;
-INSERT INTO `acc` VALUES ('a','1010000','Capital non appelle',1,'2020-03-22 15:13:53','2020-04-11 14:54:34'),('a712e22e-28a3-488c-bbab-5ccf43262e53','1000000','Capital',1,'2020-03-22 13:38:50','2020-03-22 15:13:39');
-/*!40000 ALTER TABLE `acc` ENABLE KEYS */;
+LOCK TABLES `conf` WRITE;
+/*!40000 ALTER TABLE `conf` DISABLE KEYS */;
+INSERT INTO `conf` VALUES ('acc-balancesheet','1,2,3,4,5',NULL),('acc-customers','400',NULL),('acc-incomestatement','6,7',NULL),('acc-suppliers','440',NULL),('doc-ref-format','YYNNN',NULL);
+/*!40000 ALTER TABLE `conf` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-14 23:34:04
+-- Dump completed on 2020-04-18 13:28:20

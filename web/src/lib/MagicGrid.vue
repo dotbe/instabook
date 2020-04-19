@@ -90,6 +90,16 @@
                   type="hidden"
                   :value="editedItem[fieldName]"
                 />
+                <v-textarea
+                  v-else-if="config.fields[fieldName].type == 'textarea'"
+                  v-model="editedItem[fieldName]"
+                  :label="config.fields[fieldName].text"
+                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                  :readonly="config.fields[fieldName].readonly"
+                  :filled="config.fields[fieldName].readonly"
+                  :rules="fieldRules(config.fields[fieldName])"
+                  @keyup.enter="save"
+                />
                 <v-text-field
                   v-else-if="fieldName != 'actions'"
                   v-model="editedItem[fieldName]"
@@ -284,12 +294,12 @@ export default {
         });
       if (field.type == "integer")
         rules.push(value => {
-          const pattern = /^[-+]?\d?$/;
+          const pattern = /^[-+]?\d*$/;
           return pattern.test(value) || "Invalid Integer";
         });
       if (field.type == "number")
         rules.push(value => {
-          const pattern = /^[-+]?[0-9]?(\.[0-9]+)?$/;
+          const pattern = /^[-+]?[0-9]*(\.[0-9]+)*$/;
           return pattern.test(value) || "Invalid Number";
         });
       if (field.regexp)
