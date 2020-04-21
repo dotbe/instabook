@@ -14,6 +14,7 @@ const Acc = require('./Acc')
 const Jnl = require('./Jnl')
 const Doc = require('./Doc')
 const Line = require('./Line')
+const V_Line = require('./V_Line')
 const Conf = require('./Conf')
 
 File.hasMany(Jnl)
@@ -24,6 +25,9 @@ Doc.belongsTo(Jnl)
 
 Doc.hasMany(Line)
 Line.belongsTo(Doc)
+
+Doc.hasMany(V_Line)
+V_Line.belongsTo(Doc)
 
 Acc.hasMany(Line)
 Line.belongsTo(Acc)

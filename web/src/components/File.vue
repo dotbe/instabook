@@ -125,7 +125,7 @@
   flex-direction: column;
 }
 .vertical .v-btn__content {
-  justify-content: left
+  justify-content: left;
 }
 </style>
 <script>
@@ -138,7 +138,7 @@ export default {
     return {
       MagicTools,
       metadata,
-      config:{},
+      config: {},
       file: null,
       accs: [],
       filter: {
@@ -166,10 +166,10 @@ export default {
     refresh() {
       alert("ok");
     },
-    feedback(data){
-      switch(data){
+    feedback(data) {
+      switch (data) {
         case "jnl_update":
-          this.fetchFile()
+          this.fetchFile();
       }
     },
     changeDates() {
@@ -220,6 +220,7 @@ export default {
       appBus.$emit("feedback", this.file);
       this.file = this.file.data;
       this.sortJnls();
+      this.filter.jnl = this.file.jnls[0] ? this.file.jnls[0] : null;
     },
     async fetchAccs() {
       this.accs = await MagicTools.get(this.metadata.acc.api);
@@ -230,7 +231,7 @@ export default {
     async fetchConfig() {
       let confs = await MagicTools.get(this.metadata.conf.api);
       appBus.$emit("feedback", confs);
-      confs.data.forEach(el => this.config[el.id] = el.val);
+      confs.data.forEach(el => (this.config[el.id] = el.val));
     }
   },
   mounted() {

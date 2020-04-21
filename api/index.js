@@ -53,7 +53,7 @@ app.delete('/api/files/:id', (req, res) => {
 
 // DOC 
 app.get('/api/docs/:id?', (req, res) => {
-    req.params.attributes = { include: Line }
+    req.params.attributes = { include: V_Line }
     new SequelizeHelper(Doc).restFind(req, res)
 })
 app.post('/api/docs', (req, res) => {
@@ -64,6 +64,20 @@ app.put('/api/docs/:id?', (req, res) => {
 })
 app.delete('/api/docs/:id', (req, res) => {
     new SequelizeHelper(Doc).restDelete(req, res)
+})
+
+// LINE and V_LINE 
+app.get('/api/lines/:id?', (req, res) => {
+    new SequelizeHelper(Line).restFind(req, res)
+})
+app.get('/api/v_lines/:id?', (req, res) => {
+    new SequelizeHelper(Line).restCreate(req, res)
+})
+app.put('/api/lines/:id?', (req, res) => {
+    new SequelizeHelper(Line).restUpdate(req, res)
+})
+app.delete('/api/lines/:id', (req, res) => {
+    new SequelizeHelper(Line).restDelete(req, res)
 })
 
 // JNL

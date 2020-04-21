@@ -33,7 +33,7 @@ const Line = db.define('line',
         },
         amount: {
             label: "Amount",
-            type: Sequelize.FLOAT,
+            type: Sequelize.DOUBLE(10, 2),
             allowNull: false,
             validate: {
                 notEmpty: {

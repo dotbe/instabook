@@ -7,7 +7,33 @@ let Tools = {
             .catch(err => result = err)
         return result
     },
+    formatNumber(value, decimals = 2) {
+        return parseFloat(value).toLocaleString(undefined, {
+            minimumFractionDigits: decimals
+        });
+        // return new Intl.NumberFormat("fr-BE", {
+        //   minimumFractionDigits: 2
+        // }).format(val);
+    },
+    toNumber(val, decimals = 2, positive = false) {
+        if (val == null) return null
+        let test = this.formatNumber(1234.56)//1 234,56
+        val = val.replace(new RegExp(test[1], "g"), "").replace(test[5], ".")
+        if (this.isNumber(val, positive)) return Math.round(val * Math.pow(10, decimals)) / Math.pow(10, decimals)
+        return null
+    },
+    isNumber(val, positive = false) {
+        if (val == null) return false
+        if (isNaN(Number(val))) return false
+        if (positive && val <= 0) return false
+        return true
+    },
     date: {
+        today(i = 0) {
+            let tmp = new Date()
+            tmp.setDate(tmp.getDate() + i)
+            return (tmp.getFullYear() + "-" + this.trail(tmp.getMonth() + 1) + "-" + tmp.getDate())
+        },
         boy(i = 0) {
             return (new Date().getFullYear() + i) + '-01-01'
         },
@@ -46,12 +72,6 @@ let Tools = {
                 return this.formatNumber(value, 0)
         }
         return value;
-    },
-    formatNumber(value, decimals = 2) {
-        value = parseFloat(value)
-        return value.toLocaleString(undefined, {
-            minimumFractionDigits: decimals
-        });
     },
     formatDate(date, type = "/") {
         if (date == null) return null;
@@ -117,10 +137,46 @@ let Tools = {
         result.date = result.formated ? result.formated : date
         return result
     },
-    url(url, params){
+    url(url, params) {
         url = new URL(url)
         if (params) Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
         return url
-    }
+    },
+    fieldRules(field) {
+        let rules = [];
+        if (field.required) rules.push(value => !!value || "Required!");
+        if (field.max)
+            rules.push(
+                value =>
+                    (value && value.length <= field.max) ||
+                    `Max ${field.max} characters!`
+            );
+        if (field.min)
+            rules.push(
+                value =>
+                    (value && value.length >= field.min) ||
+                    `Min ${field.min} characters!`
+            );
+        if (field.email)
+            rules.push(value => {
+                const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return pattern.test(value) || "Invalid e-mail.";
+            });
+        if (field.type == "integer")
+            rules.push(value => {
+                const pattern = /^[-+]?\d*$/;
+                return pattern.test(value) || "Invalid Integer";
+            });
+        if (field.type == "number")
+            rules.push(value => {
+                const pattern = /^[-+]?[0-9]*(\.[0-9]+)*$/;
+                return pattern.test(value) || "Invalid Number";
+            });
+        if (field.regexp)
+            rules.push(value => field.regexp[0].test(value) || field.regexp[1]);
+        if (field.rules) rules.push(...field.rules);
+        // console.log("rules: ", field.type, rules)
+        return rules;
+    },
 }
 export default Tools

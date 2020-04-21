@@ -3,9 +3,11 @@ let metadata = {
     title: "InstaBook",
     api: _api,
     icons:{
-        poeple: "mdi-face",
+        ref: "mdi-label",
+        people: "mdi-face",
         date: "mdi-calendar",
         account: "mdi-pound-box",
+        amount: "mdi-currency-eur",
         BUY: "mdi-inbox-arrow-down",
         BUY_CN: "mdi-inbox-arrow-down-outline",
         SELL: "mdi-inbox-arrow-up",
@@ -21,7 +23,7 @@ let metadata = {
             edit: true,
             custom: [{
                 icon: "mdi-folder-open",
-                fct: (el, router) => router.push("/files/" + (el.id)).catch(e => e),
+                fct: (el, router) => router.push("/files/" + (el.id) +  "/entry").catch(e => e),
                 color: "orange",
             }],
         },
@@ -143,6 +145,25 @@ let metadata = {
                 width: "10em",
                 default: true,
             },
+        },
+    },
+    doc: {
+        api: _api + "/docs",
+        refetch: false,
+        actions: {
+            del: true,
+            edit: true,
+        },
+        labels: {
+            list: "Documents",
+            add: "New Document",
+            edit: "Edit Document",
+        },
+        form: {
+            // width: "500px",
+        },
+        fields: {
+            
         },
     },
     conf: {

@@ -65,7 +65,7 @@
         <v-card-text>
           <slot v-bind:item="editedItem">
             <v-form ref="form" v-model="valid" :lazy-validation="false">
-              <v-row v-for="fieldName in fieldNames" :key="fieldName">
+              <v-row v-for="(fieldName, index) in fieldNames" :key="fieldName">
                 <v-select
                   v-if="config.fields[fieldName].type == 'select'"
                   v-model="editedItem[fieldName]"
@@ -75,6 +75,7 @@
                   :readonly="config.fields[fieldName].readonly"
                   :filled="config.fields[fieldName].readonly"
                   :rules="fieldRules(config.fields[fieldName])"
+                  :autofocus="index==0"
                 />
                 <v-checkbox
                   v-else-if="config.fields[fieldName].type == 'checkbox'"
@@ -99,6 +100,7 @@
                   :filled="config.fields[fieldName].readonly"
                   :rules="fieldRules(config.fields[fieldName])"
                   @keyup.enter="save"
+                  :autofocus="index==0"
                 />
                 <v-text-field
                   v-else-if="fieldName != 'actions'"
@@ -108,6 +110,7 @@
                   :readonly="config.fields[fieldName].readonly"
                   :filled="config.fields[fieldName].readonly"
                   :rules="fieldRules(config.fields[fieldName])"
+                  :autofocus="index==0"
                   @keyup.enter="save"
                 />
               </v-row>
@@ -273,40 +276,7 @@ export default {
       return false;
     },
     fieldRules(field) {
-      let rules = [];
-      if (field.required) rules.push(value => !!value || "Required!");
-      if (field.max)
-        rules.push(
-          value =>
-            (value && value.length <= field.max) ||
-            `Max ${field.max} characters!`
-        );
-      if (field.min)
-        rules.push(
-          value =>
-            (value && value.length >= field.min) ||
-            `Min ${field.min} characters!`
-        );
-      if (field.email)
-        rules.push(value => {
-          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-          return pattern.test(value) || "Invalid e-mail.";
-        });
-      if (field.type == "integer")
-        rules.push(value => {
-          const pattern = /^[-+]?\d*$/;
-          return pattern.test(value) || "Invalid Integer";
-        });
-      if (field.type == "number")
-        rules.push(value => {
-          const pattern = /^[-+]?[0-9]*(\.[0-9]+)*$/;
-          return pattern.test(value) || "Invalid Number";
-        });
-      if (field.regexp)
-        rules.push(value => field.regexp[0].test(value) || field.regexp[1]);
-      if (field.rules) rules.push(...field.rules);
-      // console.log("rules: ", field.type, rules)
-      return rules;
+      return MagicTools.fieldRules(field);
     }
   },
   mounted() {
