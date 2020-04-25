@@ -63,7 +63,7 @@
               class="pr-0 pl-0 mt-2"
               v-show="filter.acc.select=='some'"
               v-model="filter.acc.selected"
-              :items="accs"
+              :items="accs.all"
               item-text="label"
               item-value="id"
               dense
@@ -140,7 +140,11 @@ export default {
       metadata,
       config: {},
       file: null,
-      accs: [],
+      accs: {
+        all: [],
+        suppliers: [],
+        customers: []
+      },
       filter: {
         jnl: null,
         period: "ty",
@@ -223,10 +227,14 @@ export default {
       this.filter.jnl = this.file.jnls[0] ? this.file.jnls[0] : null;
     },
     async fetchAccs() {
-      this.accs = await MagicTools.get(this.metadata.acc.api);
-      appBus.$emit("feedback", this.accs);
-      this.accs = this.accs.data;
-      this.accs.forEach(el => (el.label = el.code + "-" + el.name));
+      let payload = await MagicTools.get(this.metadata.acc.api);
+      appBus.$emit("feedback", payload);
+      this.accs.all = payload.data;
+      this.accs.all.forEach(el => (el.label = el.code + " (" + el.name + ")"));
+      let reS = new RegExp("^" + this.config.accS)
+      let reC = new RegExp("^" + this.config.accC)
+      this.accs.suppliers = this.accs.all.filter(el => el.code.match(reS))
+      this.accs.customers = this.accs.all.filter(el => el.code.match(reC))
     },
     async fetchConfig() {
       let confs = await MagicTools.get(this.metadata.conf.api);
@@ -236,9 +244,9 @@ export default {
   },
   mounted() {
     console.log("route", this.$route.params);
+    this.fetchConfig();
     this.fetchFile();
     this.fetchAccs();
-    this.fetchConfig();
     this.changeDates();
     // console.log("boy", MagicTools.date.boy())
     // console.log("eoy", MagicTools.date.eoy())

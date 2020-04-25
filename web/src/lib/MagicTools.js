@@ -7,6 +7,9 @@ let Tools = {
             .catch(err => result = err)
         return result
     },
+    clone(obj){
+        return Object.assign({}, obj)
+    },
     formatNumber(value, decimals = 2) {
         return parseFloat(value).toLocaleString(undefined, {
             minimumFractionDigits: decimals
@@ -18,15 +21,18 @@ let Tools = {
     toNumber(val, decimals = 2, positive = false) {
         if (val == null) return null
         let test = this.formatNumber(1234.56)//1 234,56
-        val = val.replace(new RegExp(test[1], "g"), "").replace(test[5], ".")
+        val = val.toString().replace(new RegExp(test[1], "g"), "").replace(test[5], ".").replace("/", "")
         if (this.isNumber(val, positive)) return Math.round(val * Math.pow(10, decimals)) / Math.pow(10, decimals)
         return null
     },
     isNumber(val, positive = false) {
         if (val == null) return false
         if (isNaN(Number(val))) return false
-        if (positive && val <= 0) return false
+        if (positive && val < 0) return false
         return true
+    },
+    formatRef(val){
+        return val.toString().replace(/^(.{4})(.+)$/, "$1/$2")
     },
     date: {
         today(i = 0) {
@@ -79,7 +85,7 @@ let Tools = {
         let y, m, d;
         if (date.match(/-/)) {
             a = date.split("-");
-            console.log(date, "y-m-d");
+            // console.log(date, "y-m-d");
             if (a.length == 3) {
                 y = a[0];
                 m = a[1];
@@ -88,23 +94,23 @@ let Tools = {
         } else if (date.match(/\//)) {
             a = date.split("/");
             if (a.length == 3) {
-                console.log(date, "d/m/y");
+                // console.log(date, "d/m/y");
                 y = a[2];
                 m = a[1];
                 d = a[0];
             } else if (a.length == 2) {
-                console.log(date, "d/m");
+                // console.log(date, "d/m");
                 y = new Date().getFullYear();
                 m = a[1];
                 d = a[0];
             }
         } else if (date.length == 4) {
-            console.log(date, "ddmm");
+            // console.log(date, "ddmm");
             y = new Date().getFullYear();
             m = date.substring(2);
             d = date.substring(0, 2);
         } else if (date.length == 6 || date.length == 8) {
-            console.log(date, "ddmmyy or ddmmyyyy");
+            // console.log(date, "ddmmyy or ddmmyyyy");
             y = date.substring(4);
             m = date.substring(2, 4);
             d = date.substring(0, 2);
@@ -133,7 +139,7 @@ let Tools = {
         let result = { formated: this.formatDate(date, type) }
         date = date == "" ? null : date
         result.ok = result.formated != null || !required
-        result.errors = result.ok ? [] : (date == null ? ["Date is required!"] : ["Wrong date format!"])
+        result.errors = result.ok ? null : (date == null ? "Required" : "Wrong date")
         result.date = result.formated ? result.formated : date
         return result
     },

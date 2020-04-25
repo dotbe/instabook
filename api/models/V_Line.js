@@ -23,25 +23,25 @@ const V_Line = db.define('v_line',
         jnlType: {
             type: Sequelize.STRING(50),
         },
-        docRef: {
+        ref: {
             type: Sequelize.STRING(50),
         },
-        docRegDate: {
+        regDate: {
             type: Sequelize.DATEONLY,
         },
-        lineName: {
+        comment: {
             type: Sequelize.STRING(50),
         },
-        lineAmount: {
+        amount: {
             type: Sequelize.DOUBLE(10, 2),
         },
-        lineD: {
+        d: {
             type: Sequelize.DOUBLE(10, 2),
         },
-        lineC: {
+        c: {
             type: Sequelize.DOUBLE(10, 2),
         },
-        lineI: {
+        i: {
             type: Sequelize.INTEGER,
         },
         accCode: {

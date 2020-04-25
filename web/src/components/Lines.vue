@@ -5,27 +5,27 @@
         <th>Num</th>
         <th>Date</th>
         <th>Account</th>
-        <th>Account name</th>
         <th>Label</th>
+        <th>Comment</th>
         <th>Debit</th>
         <th>Credit</th>
       </thead>
       <tbody>
         <tr v-for="line in lines" :key="line.id">
-          <td>{{line.docRef | ref}}</td>
-          <td>{{line.docRegDate}}</td>
+          <td>{{line.ref | ref}}</td>
+          <td>{{line.regDate}}</td>
           <td>{{line.accCode}}</td>
           <td>{{line.accName}}</td>
-          <td>{{line.lineName}}</td>
-          <td>{{line.lineD | num}}</td>
-          <td>{{line.lineC | num}}</td>
+          <td>{{line.comment}}</td>
+          <td>{{line.d | num}}</td>
+          <td>{{line.c | num}}</td>
         </tr>
       </tbody>
       <tfoot>
         <th>Total</th>
-        <th colspan="4">{{tot.label}}: {{tot.S | num}}</th>
-        <th>{{tot.D | num}}</th>
-        <th>{{tot.C | num}}</th>
+        <th colspan="4">{{tot.label}}: {{tot.s | num}}</th>
+        <th>{{tot.d | num}}</th>
+        <th>{{tot.c | num}}</th>
       </tfoot>
     </table>
   </div>
@@ -61,34 +61,37 @@ tr :nth-child(2) {
 th,
 td {
   border: 1px solid #aaaaaa;
-  padding: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 0.8em;
 }
 </style>
 <script>
 // import { VueMaskFilter } from 'v-mask'
+import MagicTools from '../lib/MagicTools'
+
 export default {
   props: ["lines"],
   filters: {
-    num(val) {
-      return new Intl.NumberFormat("fr-BE", {
-        minimumFractionDigits: 2
-      }).format(val);
+    num(val) { return MagicTools.formatNumber(val)
+      // return new Intl.NumberFormat("fr-BE", {
+      //   minimumFractionDigits: 2
+      // }).format(val);
     },
     ref(val){
-      return val.toString().replace(/^(.{4})(.+)$/, "$1/$2")
+      return MagicTools.formatRef(val)
     },
   },
   computed: {
     tot() {
-      let result = { label: null, D: 0, C: 0, S: 0 };
+      let result = { label: null, d: 0, c: 0, s : 0 };
       this.lines.forEach(el => {
-        result.D += el.lineD;
-        result.C += el.lineC;
-        result.S += el.lineAmount;
+        result.d += el.d;
+        result.c += el.c;
+        result.s += el.amount;
       });
-      result.label = result.S > 0 ? "D" : "C";
+      result.label = result.s > 0 ? "D" : "C";
       return result;
     }
   }
