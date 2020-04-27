@@ -1,7 +1,7 @@
 let Tools = {
-    async get(api) {
+    async get(api, id = null) {
         let result
-        await fetch(api)
+        await fetch(api + (id == null?"":"/" + id))
             .then(payload => payload.json())
             .then(payload => result = payload)
             .catch(err => result = err)
@@ -174,7 +174,7 @@ let Tools = {
         let result = { formated: this.formatDate(date, type) }
         date = date == "" ? null : date
         result.ok = result.formated != null || !required
-        result.errors = result.ok ? null : (date == null ? "Required" : "Wrong date")
+        result.errors = result.ok ? null : (date == null ? "Required" : "Wrong format")
         result.date = result.formated ? result.formated : date
         return result
     },

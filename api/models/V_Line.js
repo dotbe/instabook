@@ -53,6 +53,7 @@ const V_Line = db.define('v_line',
     },
     {
         freezeTableName: true,
+        order: [["jnlName" ,"ASC"], ["ref" ,"ASC"], ["i" ,"ASC"]],
     }
 )
 

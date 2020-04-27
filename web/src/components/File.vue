@@ -99,7 +99,7 @@
       <!-- TABS -->
       <v-card class="ma-2 pa-2" width="100%">
         <v-tabs v-model="tab" class="mb-4">
-          <v-tab :to="`/files/${file.id}/entry`" :disabled="!filter.jnl">Entry</v-tab>
+          <v-tab :to="`/files/${file.id}/doc`" :disabled="!filter.jnl"><v-icon>mdi-pencil</v-icon></v-tab>
           <v-tab :to="`/files/${file.id}/journal`">Journal</v-tab>
           <v-tab :to="`/files/${file.id}/balance`">Balance</v-tab>
           <v-tab :to="`/files/${file.id}/ledger`">Ledger</v-tab>

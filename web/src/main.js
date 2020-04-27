@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import vuetify from './plugins/vuetify';
 import VueRouter from 'vue-router'
-import VueMask from 'v-mask'
+import underscore from 'vue-underscore';
 
 import App from './App.vue'
 import File from './components/File'
@@ -10,11 +10,11 @@ import Jnl from './components/Jnl'
 import Balance from './components/Balance'
 import Ledger from './components/Ledger'
 import Journal from './components/Journal'
-import Entry from './components/Entry'
+import Doc from './components/Doc'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
-Vue.use(VueMask);
+Vue.use(underscore);
 
 const routes = [
     { path: "/", component: GC },
@@ -24,7 +24,8 @@ const routes = [
     {
         path: "/files/:fileId", component: File,
         children: [
-            { path: "entry", component: Entry },
+            { path: "doc", component: Doc },
+            { path: "doc/:docId", component: Doc },
             { path: "journal", component: Journal },
             { path: "balance", component: Balance },
             { path: "ledger", component: Ledger },

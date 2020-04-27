@@ -53,7 +53,7 @@ app.delete('/api/files/:id', (req, res) => {
 
 // DOC 
 app.get('/api/docs/:id?', (req, res) => {
-    req.params.attributes = { include: V_Line }
+    req.params.attributes = { include: [Line,V_Line] }
     new SequelizeHelper(Doc).restFind(req, res)
 })
 app.post('/api/docs', async(req, res) =>  {

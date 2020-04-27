@@ -26,7 +26,7 @@ let metadata = {
             edit: true,
             custom: [{
                 icon: "mdi-folder-open",
-                fct: (el, router) => router.push("/files/" + (el.id) +  "/entry").catch(e => e),
+                fct: (el, router) => router.push("/files/" + (el.id) +  "/doc").catch(e => e),
                 color: "orange",
             }],
         },

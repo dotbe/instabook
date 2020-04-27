@@ -12,13 +12,13 @@
       {{filter.till.value}}
     </div>
     <hr class="mb-5" />
-    <v-form ref="form" :lazy-validation="false">
+    <v-form ref="form" v-model="validForm" :lazy-validation="false">
       <table class="doc">
         <tr>
           <td class="ref">
             <v-text-field
               class="title"
-              v-model="entry.ref"
+              v-model="doc.ref"
               ref="ref"
               label="Reference"
               :prepend-icon="metadata.icons.ref"
@@ -28,7 +28,7 @@
           </td>
           <td class="date">
             <v-text-field
-              v-model="entry.regDate"
+              v-model="doc.regDate"
               class="title"
               ref="regDate"
               label="Date"
@@ -40,16 +40,16 @@
           <td class="acc">
             <!-- IF JNL = BUY/SELL(CN) -->
             <v-autocomplete
-              v-if="filter.jnl.type.match(/BUY|SELL/)"
-              v-model="entry.masterAccId"
+              v-if="filter.jnl.type.match(/BUY.*|SELL.*/)"
+              v-model="doc.masterAccId"
               ref="masterAccId"
-              :items="filter.jnl.type.match(/BUY/)?accs.suppliers:accs.customers"
+              :items="filter.jnl.type.match(/BUY.*/)?accs.suppliers:accs.customers"
               item-value="id"
               item-text="label"
               :rules="[v => !!v || 'Required']"
               @blur="masterAccIdChecker()"
               :prepend-icon="metadata.icons.people"
-              :label="filter.jnl.type.match(/BUY/)?'Supplier':'Customer'"
+              :label="filter.jnl.type.match(/BUY.*/)?'Supplier':'Customer'"
               class="title"
             />
           </td>
@@ -57,10 +57,10 @@
         <tr>
           <td class="vatinc">
             <v-text-field
-              v-if="filter.jnl.type.match(/BUY|SELL/)"
+              v-if="filter.jnl.type.match(/BUY.*|SELL.*/)"
               ref="masterAmount"
               class="title num"
-              v-model="entry.masterAmount"
+              v-model="doc.masterAmount"
               label="VAT incl."
               :prepend-icon="metadata.icons.amount"
               :rules="[v => !!v || 'Required']"
@@ -69,11 +69,11 @@
           </td>
           <td colspan="2">
             <v-text-field
-              v-if="filter.jnl.type.match(/BUY|SELL|DIVERSE/)"
+              v-if="filter.jnl.type.match(/BUY.*|SELL.*|DIVERSE/)"
               ref="masterComment"
               class="title"
               style="text-align:right"
-              v-model="entry.masterComment"
+              v-model="doc.masterComment"
               label="Comment"
               :prepend-icon="metadata.icons.comment"
             />
@@ -92,7 +92,7 @@
           <th class="lineActions"></th>
         </thead>
         <tbody>
-          <tr v-for="(line, index) in lines" :key="line.i">
+          <tr v-for="(line, index) in doc.lines" :key="line.i">
             <td class="pb-2">
               <b>{{line.i}}.</b>
             </td>
@@ -105,7 +105,6 @@
                 item-value="id"
                 @blur="accIdChecker(index)"
                 @keyup.enter="save()"
-                :rules="[v => !!v || 'Required']"
                 dense
               />
             </td>
@@ -135,7 +134,7 @@
             <td>
               <v-icon
                 @click="delLine(index)"
-                v-show="lines.length>1"
+                v-show="doc.lines.length>1"
                 color="red lighten-2"
                 tabindex="-1"
               >{{metadata.icons.del}}</v-icon>
@@ -147,18 +146,23 @@
           <tr>
             <td></td>
             <td style="vertical-align:top">
-              <v-btn class="primary" @click="save()" :disabled="!(valid)">Balance {{balance | bal}}</v-btn>
+              <v-btn class="primary" @click="save()" :disabled="!(balanced && validForm)">Balance {{balance | bal}}</v-btn>
             </td>
             <td colspan="3" class="caption" style="color:IndianRed">
-              <ul>
+              <!-- <ul>
                 <li v-for="error in errors" :key="error">{{error}}</li>
-              </ul>
+              </ul> -->
             </td>
           </tr>
         </tbody>
       </table>
     </v-form>
-    <div v-if="lastDoc.v_lines" class="body-1 mt-10">Last Document for "{{filter.jnl.name}}"</div>
+    <div v-if="lastDoc.v_lines" class="body-1 mt-10 mb-2">
+      Last Document for "{{filter.jnl.name}}"
+      <v-btn :to="`/files/${file.id}/doc/${lastDoc.id}`" icon>
+        <v-icon color="primary">mdi-pencil</v-icon>
+      </v-btn>
+    </div>
     <Lines :lines="lastDoc.v_lines" />
     <hr class="mt-10" />
     <hr />
@@ -171,12 +175,13 @@
     <h2>confif</h2>
     {{config}}
     <hr />
-    <h2>entry</h2>
-    {{entry}}
-    <h2>lines</h2>
-    {{lines}}
+    <h2>doc</h2>
+    {{doc}}
     <hr />
     <h2>accs</h2>
     {{accs}}
+  </div>
+  <div v-else class="title">
+Select a journal
   </div>
 </template>
