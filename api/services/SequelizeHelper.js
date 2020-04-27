@@ -216,9 +216,9 @@ class SequelizeHelper {
             !values[this.entity.primaryKeyAttributes]) {
             values[this.entity.primaryKeyAttributes] = uuidv4()
         }
-        this.dataCleaning(values)
-        console.log("values", values)
-        await this.entity.create(values)
+        let cleanedValues = this.dataCleaning(values)
+        console.log("cleanedValues", cleanedValues)
+        await this.entity.create(cleanedValues)
             .then(result => this.resp.data = result)
             .catch(err => this.errorHandler(err))
         return this.resp
@@ -230,10 +230,10 @@ class SequelizeHelper {
     }
     async update(values) {
         this.resp.operation = "U"
-        this.dataCleaning(values)
-        const where = { [this.entity.primaryKeyAttributes]: values[this.entity.primaryKeyAttributes] }
-        this.removePK(values)
-        await this.entity.update(values, { where: where })
+        let cleanedValues = this.dataCleaning(values)
+        const where = { [this.entity.primaryKeyAttributes]: cleanedValues[this.entity.primaryKeyAttributes] }
+        this.removePK(cleanedValues)
+        await this.entity.update(cleanedValues, { where: where })
             .catch(err => this.errorHandler(err))
         if (this.resp.ok)
             return await this.find(where)
@@ -270,16 +270,24 @@ class SequelizeHelper {
         res.status(resp.status).json(resp)
         return this
     }
+    restError(message, res) {
+        this.errorHandler({ message })
+        res.status(this.resp.status).json(this.resp)
+        return this
+    }
     dataCleaning(values) {
         // clean data for insert or update
+        let result = {}
         for (const fieldName in values) {
             // console.log("dataCleaning: ",fieldName, this.entity.rawAttributes[fieldName].calculated)
-            if (!(this.entity.rawAttributes[fieldName] && this.entity.rawAttributes[fieldName].calculated != true)) {
-                delete values[fieldName]
+            if (this.entity.rawAttributes[fieldName] && this.entity.rawAttributes[fieldName].calculated != true) {
+                // delete values[fieldName]
+                result[fieldName] = values[fieldName]
             }
-            else if (values[fieldName] === "") values[fieldName] = null
+            else if (values[fieldName] === "") result[fieldName] = null
         }
         console.log("values: ", values)
+        return result
     }
     removePK(data) {
         delete data[this.entity.primaryKeyAttributes]

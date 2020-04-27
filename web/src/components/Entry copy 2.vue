@@ -1,5 +1,180 @@
-<template src="./Entry.template.vue"></template>
-<style src="./Entry.style.css"></style>
+<template>
+  <div v-if="filter.jnl">
+    <!-- chrome bug with autocomplete -->
+    <!-- <input style="display:none" />
+    <input type="password" style="display:none" />-->
+    <div class="headline">
+      <v-icon class="mb-1">{{metadata.icons[filter.jnl.type]}}</v-icon>
+      {{filter.jnl.name}}
+      <v-icon class="mb-1">{{metadata.icons.date}}</v-icon>
+      {{filter.from.value}}
+      <v-icon class="mb-1">mdi-arrow-right</v-icon>
+      {{filter.till.value}}
+    </div>
+    <hr class="mb-5" />
+    <v-form ref="form" :lazy-validation="false">
+      <table class="doc">
+        <tr>
+          <td class="ref">
+            <v-text-field
+              class="title"
+              v-model="entry.ref"
+              ref="ref"
+              label="Reference"
+              :prepend-icon="metadata.icons.ref"
+              :rules="[v => !!v || 'Required']"
+              @blur="refChecker()"
+            />
+          </td>
+          <td class="date">
+            <v-text-field
+              v-model="entry.regDate"
+              class="title"
+              ref="regDate"
+              label="Date"
+              :prepend-icon="metadata.icons.date"
+              :rules="[v => !!v || 'Required']"
+              @blur="dateChecker()"
+            />
+          </td>
+          <td class="acc">
+            <!-- IF JNL = BUY/SELL(CN) -->
+            <v-autocomplete
+              v-if="filter.jnl.type.match(/BUY|SELL/)"
+              v-model="entry.masterAccId"
+              ref="masterAccId"
+              :items="filter.jnl.type.match(/BUY/)?accs.suppliers:accs.customers"
+              item-value="id"
+              item-text="label"
+              :rules="[v => !!v || 'Required']"
+              @blur="masterAccIdChecker()"
+              :prepend-icon="metadata.icons.people"
+              :label="filter.jnl.type.match(/BUY/)?'Supplier':'Customer'"
+              class="title"
+            />
+          </td>
+        </tr>
+        <tr>
+          <td class="vatinc">
+            <v-text-field
+              v-if="filter.jnl.type.match(/BUY|SELL/)"
+              ref="masterAmount"
+              class="title num"
+              v-model="entry.masterAmount"
+              label="VAT incl."
+              :prepend-icon="metadata.icons.amount"
+              :rules="[v => !!v || 'Required']"
+              @blur="masterAmountChecker()"
+            />
+          </td>
+          <td colspan="2">
+            <v-text-field
+              v-if="filter.jnl.type.match(/BUY|SELL|DIVERSE/)"
+              ref="masterComment"
+              class="title"
+              style="text-align:right"
+              v-model="entry.masterComment"
+              label="Comment"
+              :prepend-icon="metadata.icons.comment"
+            />
+          </td>
+        </tr>
+      </table>
+
+      <table class="lines mt-5">
+        <thead>
+          <th class="body-1 lineI">#</th>
+          <th class="body-1 lineAccount">Account</th>
+          <th class="body-1 lineD">Debit</th>
+          <th class="body-1 lineC">Credit</th>
+          <th class="body-1 lineComment">Comment</th>
+          <th class="lineActions"></th>
+          <th class="lineActions"></th>
+        </thead>
+        <tbody>
+          <tr v-for="(line, index) in lines" :key="line.i">
+            <td class="pb-2">
+              <b>{{line.i}}.</b>
+            </td>
+            <td>
+              <v-autocomplete
+                v-model="line.accId"
+                ref="accId"
+                :items="accs.all"
+                item-text="label"
+                item-value="id"
+                @blur="accIdChecker(index)"
+                @keyup.enter="save()"
+                :rules="[v => !!v || 'Required']"
+                dense
+              />
+            </td>
+            <td class="num">
+              <v-text-field
+                v-model="line.d"
+                ref="d"
+                :rules="[v => !!v || 'Required']"
+                @blur="dChecker(index)"
+                @keyup.enter="save()"
+                dense
+              />
+            </td>
+            <td class="num">
+              <v-text-field
+                v-model="line.c"
+                ref="c"
+                :rules="[v => !!v || 'Required']"
+                @blur="cChecker(index)"
+                @keyup.enter="save()"
+                dense
+              />
+            </td>
+            <td>
+              <v-text-field ref="comment" v-model="line.comment" dense />
+            </td>
+            <td>
+              <v-icon
+                @click="delLine(index)"
+                v-show="lines.length>1"
+                color="red lighten-2"
+                tabindex="-1"
+              >{{metadata.icons.del}}</v-icon>
+            </td>
+            <td>
+              <v-icon @click="addLine(index)" tabindex="-1">{{metadata.icons.addRow}}</v-icon>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td style="vertical-align:top">
+              <v-btn class="primary" @click="save()" :disabled="!(valid)">Balance {{balance | bal}}</v-btn>
+            </td>
+            <td colspan="3" class="caption" style="color:IndianRed">
+              <ul>
+                <li v-for="error in errors" :key="error">{{error}}</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </v-form>
+    <div v-if="lastDoc.v_lines" class="body-1 mt-10">Last Document for "{{filter.jnl.name}}"</div>
+    <Lines :lines="lastDoc.v_lines" />
+    <hr class="mt-10" />
+    <hr />
+    {{filter}}
+    <hr />
+    {{config}}
+    <hr />
+    {{accs}}
+    <hr />
+    {{entry}}
+    {{lines}}
+  </div>
+</template>
+
+
+
 <script>
 // import { VueMaskFilter } from 'v-mask'
 import MagicTools from "../lib/MagicTools";
@@ -14,7 +189,6 @@ export default {
       lastDoc: {},
       balance: false,
       errors: [],
-      doc:{},
       entry: {
         ref: null,
         regDate: null,
@@ -115,32 +289,33 @@ export default {
       let a = 0;
       // add line i=0 for BUY/SELL with master*
       if (this.filter.jnl.type.match(/BUY|SELL_CN/)) {
-        a = -MagicTools.toNumber(this.entry.masterAmount);
+        a = MagicTools.toNumber(this.doc.masterAmount);
       } else if (this.filter.jnl.type.match(/BUY_CN|SELL/)) {
-        a = MagicTools.toNumber(this.entry.masterAmount);
+        a = -MagicTools.toNumber(this.doc.masterAmount);
       }
-      if (a != 0) {
+      if (a > 0) {
         this.doc.lines.push({
-          accId: this.entry.masterAccId,
+          accId: this.doc.masterAccId,
           i: 0,
           amount: a,
-          comment: this.entry.masterComment
+          comment: this.doc.masterComment
         });
       }
       // line operation: set line.amount = d-c and remove empty lines and renumber line.i
       this.lines.forEach((el, index) => {
         el.amount = MagicTools.toNumber(el.d) - MagicTools.toNumber(el.c);
-        if (el.amount != 0) {
+        if (el.amount > 0) {
           this.doc.lines.push({
             accId: el.accId,
             i: index + (a == 0 ? 0 : 1),
-            amount: el.amount,
+            amount: a,
             comment: el.comment,
           });
         }
       });
       // submit
-      console.log("doc: ",this.doc);
+      console.log(this.metadata.doc.api);
+      console.log(this.doc);
       if (this.doc.id) {
         result = await MagicTools.put(
           this.metadata.doc.api,
@@ -148,13 +323,14 @@ export default {
           this.doc.id
         );
       } else {
+        console.log("PUT");
         result = await MagicTools.post(this.metadata.doc.api, this.doc);
       }
       appBus.$emit("feedback", result);
       if (result.ok) {
         this.initEntry();
       } else {
-        this.errors.push("Error! Document not saved: \n" + result.message);
+        this.errors.push("ERROR! Document not saved: " + result.message);
       }
     },
     docChecker() {
@@ -294,7 +470,6 @@ export default {
 
     async initEntry() {
       this.balance = false;
-      this.doc = {}
       this.entry = {
         ref: null,
         regDate: null,
@@ -314,8 +489,6 @@ export default {
       // set the ref and date
       if (docs.data.length > 0) {
         this.lastDoc = docs.data[0];
-        console.log("lastDoc: ", this.lastDoc)
-        this.lastDoc.v_lines.sort(MagicTools.sortBy("i"))
         this.entry.ref = this.lastDoc.ref + 1;
         this.entry.regDate = this.lastDoc.regDate;
       } else {
@@ -336,3 +509,52 @@ export default {
   }
 };
 </script>
+
+<style>
+.v-label,
+.v-text-field input {
+  font-size: 0.9em;
+}
+td.date,
+td.ref,
+td.vatinc {
+  width: 150px;
+}
+.num input {
+  text-align: right;
+}
+td.acc {
+  width: 300px;
+}
+.doc {
+  border-collapse: collapse;
+}
+.lines {
+  width: 700px;
+  border-collapse: collapse;
+}
+.lines th {
+  border-bottom: 1px solid silver;
+}
+.lineI {
+  width: 10px;
+}
+.lineAccount,
+.lineComment {
+  width: 200px;
+}
+.lineC,
+.lineD {
+  width: 100px;
+}
+.lineActions {
+  width: 50px;
+}
+td,
+th {
+  /* border: 1px solid black;  */
+}
+td {
+  padding-right: 10px;
+}
+</style>

@@ -1,0 +1,182 @@
+<template>
+  <div v-if="filter.jnl">
+    <!-- chrome bug with autocomplete -->
+    <!-- <input style="display:none" />
+    <input type="password" style="display:none" />-->
+    <div class="headline">
+      <v-icon class="mb-1">{{metadata.icons[filter.jnl.type]}}</v-icon>
+      {{filter.jnl.name}}
+      <v-icon class="mb-1">{{metadata.icons.date}}</v-icon>
+      {{filter.from.value}}
+      <v-icon class="mb-1">mdi-arrow-right</v-icon>
+      {{filter.till.value}}
+    </div>
+    <hr class="mb-5" />
+    <v-form ref="form" :lazy-validation="false">
+      <table class="doc">
+        <tr>
+          <td class="ref">
+            <v-text-field
+              class="title"
+              v-model="entry.ref"
+              ref="ref"
+              label="Reference"
+              :prepend-icon="metadata.icons.ref"
+              :rules="[v => !!v || 'Required']"
+              @blur="refChecker()"
+            />
+          </td>
+          <td class="date">
+            <v-text-field
+              v-model="entry.regDate"
+              class="title"
+              ref="regDate"
+              label="Date"
+              :prepend-icon="metadata.icons.date"
+              :rules="[v => !!v || 'Required']"
+              @blur="dateChecker()"
+            />
+          </td>
+          <td class="acc">
+            <!-- IF JNL = BUY/SELL(CN) -->
+            <v-autocomplete
+              v-if="filter.jnl.type.match(/BUY|SELL/)"
+              v-model="entry.masterAccId"
+              ref="masterAccId"
+              :items="filter.jnl.type.match(/BUY/)?accs.suppliers:accs.customers"
+              item-value="id"
+              item-text="label"
+              :rules="[v => !!v || 'Required']"
+              @blur="masterAccIdChecker()"
+              :prepend-icon="metadata.icons.people"
+              :label="filter.jnl.type.match(/BUY/)?'Supplier':'Customer'"
+              class="title"
+            />
+          </td>
+        </tr>
+        <tr>
+          <td class="vatinc">
+            <v-text-field
+              v-if="filter.jnl.type.match(/BUY|SELL/)"
+              ref="masterAmount"
+              class="title num"
+              v-model="entry.masterAmount"
+              label="VAT incl."
+              :prepend-icon="metadata.icons.amount"
+              :rules="[v => !!v || 'Required']"
+              @blur="masterAmountChecker()"
+            />
+          </td>
+          <td colspan="2">
+            <v-text-field
+              v-if="filter.jnl.type.match(/BUY|SELL|DIVERSE/)"
+              ref="masterComment"
+              class="title"
+              style="text-align:right"
+              v-model="entry.masterComment"
+              label="Comment"
+              :prepend-icon="metadata.icons.comment"
+            />
+          </td>
+        </tr>
+      </table>
+
+      <table class="lines mt-5">
+        <thead>
+          <th class="body-1 lineI">#</th>
+          <th class="body-1 lineAccount">Account</th>
+          <th class="body-1 lineD">Debit</th>
+          <th class="body-1 lineC">Credit</th>
+          <th class="body-1 lineComment">Comment</th>
+          <th class="lineActions"></th>
+          <th class="lineActions"></th>
+        </thead>
+        <tbody>
+          <tr v-for="(line, index) in lines" :key="line.i">
+            <td class="pb-2">
+              <b>{{line.i}}.</b>
+            </td>
+            <td>
+              <v-autocomplete
+                v-model="line.accId"
+                ref="accId"
+                :items="accs.all"
+                item-text="label"
+                item-value="id"
+                @blur="accIdChecker(index)"
+                @keyup.enter="save()"
+                :rules="[v => !!v || 'Required']"
+                dense
+              />
+            </td>
+            <td class="num">
+              <v-text-field
+                v-model="line.d"
+                ref="d"
+                :rules="[v => !!v || 'Required']"
+                @blur="dChecker(index)"
+                @keyup.enter="save()"
+                dense
+              />
+            </td>
+            <td class="num">
+              <v-text-field
+                v-model="line.c"
+                ref="c"
+                :rules="[v => !!v || 'Required']"
+                @blur="cChecker(index)"
+                @keyup.enter="save()"
+                dense
+              />
+            </td>
+            <td>
+              <v-text-field ref="comment" v-model="line.comment" dense />
+            </td>
+            <td>
+              <v-icon
+                @click="delLine(index)"
+                v-show="lines.length>1"
+                color="red lighten-2"
+                tabindex="-1"
+              >{{metadata.icons.del}}</v-icon>
+            </td>
+            <td>
+              <v-icon @click="addLine(index)" tabindex="-1">{{metadata.icons.addRow}}</v-icon>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td style="vertical-align:top">
+              <v-btn class="primary" @click="save()" :disabled="!(valid)">Balance {{balance | bal}}</v-btn>
+            </td>
+            <td colspan="3" class="caption" style="color:IndianRed">
+              <ul>
+                <li v-for="error in errors" :key="error">{{error}}</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </v-form>
+    <div v-if="lastDoc.v_lines" class="body-1 mt-10">Last Document for "{{filter.jnl.name}}"</div>
+    <Lines :lines="lastDoc.v_lines" />
+    <hr class="mt-10" />
+    <hr />
+    <h2>doc</h2>
+    {{doc}}
+    <hr />
+    <h2>filter</h2>
+    {{filter}}
+    <hr />
+    <h2>confif</h2>
+    {{config}}
+    <hr />
+    <h2>entry</h2>
+    {{entry}}
+    <h2>lines</h2>
+    {{lines}}
+    <hr />
+    <h2>accs</h2>
+    {{accs}}
+  </div>
+</template>

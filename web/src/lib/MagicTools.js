@@ -7,8 +7,43 @@ let Tools = {
             .catch(err => result = err)
         return result
     },
-    clone(obj){
+    async post(api, data, id = null) {
+        let result
+        let method = id == null ? "POST" : "PUT"
+        api = api + (id == null ? "" : "/" + id)
+        console.log("post", api, method)
+        await fetch(api, {
+            method,
+            body: JSON.stringify(data),
+            headers: {
+                "content-type": "application/json"
+            }
+        })
+            .then(payload => payload.json())
+            .then(payload => result = payload)
+            .catch(err => result = err)
+        return result
+    },
+    async put(api, data, id) {
+        return await this.post(api, data, id)
+    },
+    clone(obj) {
         return Object.assign({}, obj)
+    },
+    sortBy(prop, order = "asc") {
+        let sortOrder = order === "desc" ? -1 : 1;
+        return function (a, b) {
+            // a should come before b in the sorted order
+            if (a[prop] < b[prop]) {
+                return -1 * sortOrder;
+                // a should come after b in the sorted order
+            } else if (a[prop] > b[prop]) {
+                return 1 * sortOrder;
+                // a and b are the same
+            } else {
+                return 0 * sortOrder;
+            }
+        }
     },
     formatNumber(value, decimals = 2) {
         return parseFloat(value).toLocaleString(undefined, {
@@ -31,7 +66,7 @@ let Tools = {
         if (positive && val < 0) return false
         return true
     },
-    formatRef(val){
+    formatRef(val) {
         return val.toString().replace(/^(.{4})(.+)$/, "$1/$2")
     },
     date: {

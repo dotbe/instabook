@@ -23,7 +23,7 @@
       </tbody>
       <tfoot>
         <th>Total</th>
-        <th colspan="4">{{tot.label}}: {{tot.s | num}}</th>
+        <th colspan="4">{{tot.label}} {{tot.s | num}}</th>
         <th>{{tot.d | num}}</th>
         <th>{{tot.c | num}}</th>
       </tfoot>
@@ -69,29 +69,30 @@ td {
 </style>
 <script>
 // import { VueMaskFilter } from 'v-mask'
-import MagicTools from '../lib/MagicTools'
+import MagicTools from "../lib/MagicTools";
 
 export default {
   props: ["lines"],
   filters: {
-    num(val) { return MagicTools.formatNumber(val)
+    num(val) {
+      return MagicTools.formatNumber(val);
       // return new Intl.NumberFormat("fr-BE", {
       //   minimumFractionDigits: 2
       // }).format(val);
     },
-    ref(val){
-      return MagicTools.formatRef(val)
-    },
+    ref(val) {
+      return MagicTools.formatRef(val);
+    }
   },
   computed: {
     tot() {
-      let result = { label: null, d: 0, c: 0, s : 0 };
+      let result = { label: null, d: 0, c: 0, s: 0 };
       this.lines.forEach(el => {
         result.d += el.d;
         result.c += el.c;
-        result.s += el.amount;
       });
-      result.label = result.s > 0 ? "D" : "C";
+      result.s = result.d - result.c;
+      result.label = result.s == 0 ? "" : result.s > 0 ? "D" : "C";
       return result;
     }
   }

@@ -1,0 +1,52 @@
+.v-label, .v-text-field input {
+  font-size: 0.9em;
+}
+
+td.date, td.ref, td.vatinc {
+  width: 150px;
+}
+
+.num input {
+  text-align: right;
+}
+
+td.acc {
+  width: 300px;
+}
+
+.doc {
+  border-collapse: collapse;
+}
+
+.lines {
+  width: 700px;
+  border-collapse: collapse;
+}
+
+.lines th {
+  border-bottom: 1px solid silver;
+}
+
+.lineI {
+  width: 10px;
+}
+
+.lineAccount, .lineComment {
+  width: 200px;
+}
+
+.lineC, .lineD {
+  width: 100px;
+}
+
+.lineActions {
+  width: 50px;
+}
+
+td, th {
+  /* border: 1px solid black;  */
+}
+
+td {
+  padding-right: 10px;
+}

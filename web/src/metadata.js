@@ -152,22 +152,6 @@ let metadata = {
     },
     doc: {
         api: _api + "/docs",
-        refetch: false,
-        actions: {
-            del: true,
-            edit: true,
-        },
-        labels: {
-            list: "Documents",
-            add: "New Document",
-            edit: "Edit Document",
-        },
-        form: {
-            // width: "500px",
-        },
-        fields: {
-            
-        },
     },
     conf: {
         api: _api + "/confs",

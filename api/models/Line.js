@@ -26,11 +26,6 @@ const Line = db.define('line',
                 }
             }
         },
-        name: {
-            label: "Label",
-            type: Sequelize.STRING(50),
-            allowNull: true
-        },
         amount: {
             label: "Amount",
             type: Sequelize.DOUBLE(10, 2),
@@ -46,10 +41,15 @@ const Line = db.define('line',
             type: Sequelize.INTEGER,
             allowNull: false,
         },
+        comment: {
+            label: "Comment",
+            type: Sequelize.STRING(50),
+            allowNull: true
+        },
     },
     {
         freezeTableName: true,
-        order: [["i" ,"ASC"]]
+        order: [["i", "ASC"]]
     }
 )
 

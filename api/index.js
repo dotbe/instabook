@@ -56,8 +56,28 @@ app.get('/api/docs/:id?', (req, res) => {
     req.params.attributes = { include: V_Line }
     new SequelizeHelper(Doc).restFind(req, res)
 })
-app.post('/api/docs', (req, res) => {
-    new SequelizeHelper(Doc).restCreate(req, res)
+app.post('/api/docs', async(req, res) =>  {
+    let doc = req.body
+    let balance = doc.lines.reduce((acc, el) => acc + el.amount, 0)
+    if (balance != 0) {
+        new SequelizeHelper(Doc).restError(`Document ${doc.ref} is not balanced: ${balance}`, res)
+    }
+    else {
+        try {
+            let newDoc = await new SequelizeHelper(Doc).create(doc) // create adds the ID to the object
+            console.log("doc: ", doc)
+            doc.lines.forEach(async line => {
+                line.docId = doc.id
+                const r = await new SequelizeHelper(Line).create(line)
+            })
+            // console.log("newDoc: ", newDoc)
+            res.status(newDoc.status).json(newDoc)
+        } catch (error) {
+            new SequelizeHelper(Doc).delete(doc.id)
+            new SequelizeHelper(Doc).restError(error.message, res) 
+        }
+    }
+
 })
 app.put('/api/docs/:id?', (req, res) => {
     new SequelizeHelper(Doc).restUpdate(req, res)
@@ -67,18 +87,18 @@ app.delete('/api/docs/:id', (req, res) => {
 })
 
 // LINE and V_LINE 
-app.get('/api/lines/:id?', (req, res) => {
-    new SequelizeHelper(Line).restFind(req, res)
-})
+// app.get('/api/lines/:id?', (req, res) => {
+//     new SequelizeHelper(Line).restFind(req, res)
+// })
 app.get('/api/v_lines/:id?', (req, res) => {
     new SequelizeHelper(Line).restCreate(req, res)
 })
-app.put('/api/lines/:id?', (req, res) => {
-    new SequelizeHelper(Line).restUpdate(req, res)
-})
-app.delete('/api/lines/:id', (req, res) => {
-    new SequelizeHelper(Line).restDelete(req, res)
-})
+// app.put('/api/lines/:id?', (req, res) => {
+//     new SequelizeHelper(Line).restUpdate(req, res)
+// })
+// app.delete('/api/lines/:id', (req, res) => {
+//     new SequelizeHelper(Line).restDelete(req, res)
+// })
 
 // JNL
 app.get('/api/jnls/:id?', (req, res) => {
