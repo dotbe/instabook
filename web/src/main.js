@@ -20,6 +20,7 @@ const routes = [
     { path: "/", component: GC },
     { path: "/files", component: GC },
     { path: "/accounts", component: GC },
+    { path: "/vats", component: GC },
     { path: "/parameters", component: GC },
     {
         path: "/files/:fileId", component: File,

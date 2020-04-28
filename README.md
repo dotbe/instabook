@@ -18,6 +18,23 @@ SequelizeHelper
 ---
 A tool to simplify usage of Sequelize
 
+define Sequelize entity:
+```
+       (...)
+        id:{
+          // for text primary key, UUID is generated
+        }
+        accName:{
+            label: "VAT Account", //to  improve error message
+            calculated: true, // select only!
+        },
+    },
+    {
+        viewName: "v_vat", // for select only... with calculated fields
+        freezeTableName: true,
+    }
+```
+
 Add parameters to select records (in request.body or .params or .query):
 - "grid.order": field asc,...
 - "grid.max": 100
@@ -92,7 +109,7 @@ const metadata = {
       add: "New File",
       edit: "Edit File"
     },
-    feilds: [
+    fields: [
       { value: "name", text: "Name", required:true },
       { value: "taxRef", text: "VAT" },
       

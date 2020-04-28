@@ -11,6 +11,10 @@ const Jnl = db.define('jnl',
             allowNull: false,
             type: Sequelize.STRING(50),
         },
+        accId: {
+            label: "Counterpart Account",
+            type: Sequelize.STRING(50),
+        },
         name: {
             label: "Journal Name",
             type: Sequelize.STRING(50),

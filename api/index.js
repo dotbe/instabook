@@ -34,10 +34,6 @@ app.get('/api/files', (req, res) => {
     new SequelizeHelper(File).restFind(req, res)
 })
 app.get('/api/files/:id', (req, res) => {
-    // switch (req.query.include) {
-    //     case "jnls":
-    //         break
-    // }
     req.params.attributes = { include: Jnl }
     new SequelizeHelper(File).restFind(req, res)
 })
@@ -140,6 +136,20 @@ app.put('/api/confs/:id?', (req, res) => {
 })
 app.delete('/api/confs/:id', (req, res) => {
     new SequelizeHelper(Conf).restDelete(req, res)
+})
+
+// VAT
+app.get('/api/vats/:id?', (req, res) => {
+    new SequelizeHelper(Vat).restFind(req, res)
+})
+app.post('/api/vats', (req, res) => {
+    new SequelizeHelper(Vat).restCreate(req, res)
+})
+app.put('/api/vats/:id?', (req, res) => {
+    new SequelizeHelper(Vat).restUpdate(req, res)
+})
+app.delete('/api/vats/:id', (req, res) => {
+    new SequelizeHelper(Vat).restDelete(req, res)
 })
 
 const port = process.env.PORT || 5000

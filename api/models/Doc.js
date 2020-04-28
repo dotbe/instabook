@@ -1,4 +1,3 @@
-
 const Doc = db.define('doc',
     {
         id: {
@@ -7,16 +6,6 @@ const Doc = db.define('doc',
             allowNull: false,
             primaryKey: true,
         },
-        // fileId: {
-        //     label: "File",
-        //     type: Sequelize.STRING(50),
-        //     allowNull: false,
-        //     validate: {
-        //         notEmpty: {
-        //             msg: "File is required"
-        //         }
-        //     }
-        // },
         jnlId: {
             label: "Journal",
             type: Sequelize.STRING(50), 

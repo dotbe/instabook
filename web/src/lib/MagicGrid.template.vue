@@ -67,53 +67,70 @@
           <slot v-bind:item="editedItem">
             <v-form ref="form" v-model="valid" :lazy-validation="false">
               <v-row v-for="(fieldName, index) in fieldNames" :key="fieldName">
-                <v-select
-                  v-if="config.fields[fieldName].type == 'select'"
-                  v-model="editedItem[fieldName]"
-                  :items="config.fields[fieldName].options"
-                  :label="config.fields[fieldName].text"
-                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
-                  :readonly="config.fields[fieldName].readonly"
-                  :filled="config.fields[fieldName].readonly"
-                  :rules="fieldRules(config.fields[fieldName])"
-                  :autofocus="index==0"
-                />
-                <v-checkbox
-                  v-else-if="config.fields[fieldName].type == 'checkbox'"
-                  v-model="editedItem[fieldName]"
-                  :label="config.fields[fieldName].text"
-                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
-                  :readonly="config.fields[fieldName].readonly"
-                  :filled="config.fields[fieldName].readonly"
-                  :rules="fieldRules(config.fields[fieldName])"
-                />
-                <input
-                  v-else-if="config.fields[fieldName].type == 'hidden'"
-                  type="hidden"
-                  :value="editedItem[fieldName]"
-                />
-                <v-textarea
-                  v-else-if="config.fields[fieldName].type == 'textarea'"
-                  v-model="editedItem[fieldName]"
-                  :label="config.fields[fieldName].text"
-                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
-                  :readonly="config.fields[fieldName].readonly"
-                  :filled="config.fields[fieldName].readonly"
-                  :rules="fieldRules(config.fields[fieldName])"
-                  @keyup.enter="save"
-                  :autofocus="index==0"
-                />
-                <v-text-field
-                  v-else-if="fieldName != 'actions'"
-                  v-model="editedItem[fieldName]"
-                  :label="config.fields[fieldName].text"
-                  :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
-                  :readonly="config.fields[fieldName].readonly"
-                  :filled="config.fields[fieldName].readonly"
-                  :rules="fieldRules(config.fields[fieldName])"
-                  :autofocus="index==0"
-                  @keyup.enter="save"
-                />
+                <template v-if="config.fields[fieldName].form !== false">
+                  <v-select
+                    v-if="config.fields[fieldName].type == 'select'"
+                    v-model="editedItem[fieldName]"
+                    :items="config.fields[fieldName].options"
+                    :label="config.fields[fieldName].text"
+                    :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                    :readonly="config.fields[fieldName].readonly"
+                    :filled="config.fields[fieldName].readonly"
+                    :rules="fieldRules(config.fields[fieldName])"
+                    :autofocus="index==0"
+                  />
+                  <v-checkbox
+                    v-else-if="config.fields[fieldName].type == 'checkbox'"
+                    v-model="editedItem[fieldName]"
+                    :label="config.fields[fieldName].text"
+                    :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                    :readonly="config.fields[fieldName].readonly"
+                    :filled="config.fields[fieldName].readonly"
+                    :rules="fieldRules(config.fields[fieldName])"
+                  />
+                  <input
+                    v-else-if="config.fields[fieldName].type == 'hidden'"
+                    type="hidden"
+                    :value="editedItem[fieldName]"
+                  />
+                  <v-textarea
+                    v-else-if="config.fields[fieldName].type == 'textarea'"
+                    v-model="editedItem[fieldName]"
+                    :label="config.fields[fieldName].text"
+                    :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                    :readonly="config.fields[fieldName].readonly"
+                    :filled="config.fields[fieldName].readonly"
+                    :rules="fieldRules(config.fields[fieldName])"
+                    @keyup.enter="save"
+                    :autofocus="index==0"
+                  />
+                  <v-select
+                    autocomplete
+                    v-else-if="config.fields[fieldName].type == 'autocomplete'"
+                    v-model="editedItem[fieldName]"
+                    :label="config.fields[fieldName].text"
+                    :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                    :readonly="config.fields[fieldName].readonly"
+                    :filled="config.fields[fieldName].readonly"
+                    :rules="fieldRules(config.fields[fieldName])"
+                    :items="config.fields[fieldName].options"
+                    :item-value="config.fields[fieldName].value"
+                    :item-text="config.fields[fieldName].label"
+                    @keyup.enter="save"
+                    :autofocus="index==0"
+                  />
+                  <v-text-field
+                    v-else-if="fieldName != 'actions'"
+                    v-model="editedItem[fieldName]"
+                    :label="config.fields[fieldName].text"
+                    :disabled="editedIndex!=-1 && config.fields[fieldName].disabled"
+                    :readonly="config.fields[fieldName].readonly"
+                    :filled="config.fields[fieldName].readonly"
+                    :rules="fieldRules(config.fields[fieldName])"
+                    :autofocus="index==0"
+                    @keyup.enter="save"
+                  />
+                </template>
               </v-row>
             </v-form>
           </slot>

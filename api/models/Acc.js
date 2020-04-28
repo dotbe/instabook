@@ -6,6 +6,14 @@ const Acc = db.define('Acc',
             allowNull: false,
             primaryKey: true,
         },
+        defAccId: {
+            label: "Counterpart Account",
+            type: Sequelize.STRING(50),
+        },
+        vatCode: {
+            label: "Default VAT",
+            type: Sequelize.STRING(50),
+        },
         code: {
             label: "Account Code",
             type: Sequelize.STRING(50),

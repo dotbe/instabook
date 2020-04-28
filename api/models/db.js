@@ -16,6 +16,7 @@ const Doc = require('./Doc')
 const Line = require('./Line')
 const V_Line = require('./V_Line')
 const Conf = require('./Conf')
+const Vat = require('./Vat')
 
 File.hasMany(Jnl)
 Jnl.belongsTo(File) // hasOne: fk in File vs belongsTo: fk in Doc

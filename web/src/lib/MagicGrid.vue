@@ -33,7 +33,7 @@ export default {
       for (const fn in this.config.fields) {
         let f = Object.assign({}, this.config.fields[fn]);
         f.value = fn;
-        if (f.type != "hidden") fl.push(f);
+        if (f.type !== "hidden" && f.grid !== false) fl.push(f);
       }
       fl.push({ value: "actions", sortable: false });
       console.log("headers", fl);

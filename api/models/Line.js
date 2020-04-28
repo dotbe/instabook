@@ -26,6 +26,10 @@ const Line = db.define('line',
                 }
             }
         },
+        vatCode: {
+            label: "VAT Code",
+            type: Sequelize.STRING(50),
+        },
         amount: {
             label: "Amount",
             type: Sequelize.DOUBLE(10, 2),
@@ -41,6 +45,10 @@ const Line = db.define('line',
             type: Sequelize.INTEGER,
             allowNull: false,
         },
+        ro: {
+            label: "Read-only",
+            type: Sequelize.BOOLEAN,
+        },
         comment: {
             label: "Comment",
             type: Sequelize.STRING(50),
@@ -49,7 +57,7 @@ const Line = db.define('line',
     },
     {
         freezeTableName: true,
-        order: [["i", "ASC"]]
+        order: [["i", "ASC"], ["ro", "DESC"]]
     }
 )
 

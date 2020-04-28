@@ -1,8 +1,8 @@
-let _api  ="http://localhost:5000/api"
+let _api = "http://localhost:5000/api"
 let metadata = {
     title: "InstaBook",
     api: _api,
-    icons:{
+    icons: {
         del: "mdi-delete",
         addRow: "mdi-table-row-plus-before",
         ref: "mdi-label",
@@ -26,7 +26,7 @@ let metadata = {
             edit: true,
             custom: [{
                 icon: "mdi-folder-open",
-                fct: (el, router) => router.push("/files/" + (el.id) +  "/doc").catch(e => e),
+                fct: (el, router) => router.push("/files/" + (el.id) + "/doc").catch(e => e),
                 color: "orange",
             }],
         },
@@ -36,25 +36,19 @@ let metadata = {
             edit: "Edit File"
         },
         form: {
-            // width: "500px",
         },
         fields: {
-            name:{
-                // value: 'name',
+            name: {
                 text: 'Name',
                 disabled: true,
                 required: true,
                 max: 30,
                 min: 3,
                 regexp: [/^\S*$/, "No space!"]
-                // width: "30em",
-                // email: true,
             },
-            taxRef:{
-                // value: 'taxRef',
+            taxRef: {
                 text: 'VAT',
                 required: false,
-                // width: "30em"
             },
         }
     },
@@ -71,28 +65,33 @@ let metadata = {
             edit: "Edit Account",
         },
         form: {
-            // width: "500px",
         },
         fields: {
-            code:{
-                // value: 'code',
+            code: {
                 text: 'Code',
                 disabled: true,
                 required: true,
                 max: 20,
                 min: 6,
                 regexp: [/^\S*$/, "No space!"],
-                // width: "30em",
-                // email: true,
             },
-            name:{
-                // value: 'name',
+            name: {
                 text: 'Name',
                 required: true,
-                // width: "30em"
             },
-            active:{
-                // value: 'active',
+            defAccId: {
+                text: 'Counterpart Account',
+                type: "autocomplete",
+                options: "accs",
+                value:"id",
+                label:"label",
+            },
+            vatCode: {
+                text: 'VAT Code',
+                type: "select",
+                options: "vatCodes",
+            },
+            active: {
                 text: 'Active',
                 type: 'checkbox',
                 width: "10em",
@@ -116,37 +115,93 @@ let metadata = {
             // width: "500px",
         },
         fields: {
-            fileId:{
+            fileId: {
                 type: "hidden"
             },
-            type:{
-                // value: 'type',
+            type: {
                 text: 'Type',
                 disabled: true,
                 required: true,
-                options:["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
+                options: ["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
                 type: 'select',
-                // width: "30em",
-                // email: true,
             },
-            name:{
-                // value: 'name',
+            name: {
                 text: 'Name',
                 required: true,
-                // width: "30em"
             },
-            // nextRef:{
-            //     // value: 'name',
-            //     text: 'Next Doc Num',
-            //     type: 'integer'
-            //     // width: "30em"
-            // },
-            active:{
-                // value: 'active',
+            accId: {
+                text: 'Counterpart',
+                type: "autocomplete",
+                options: "accs",
+                value: "id",
+                label:"label"
+            },
+            active: {
                 text: 'Active',
                 type: 'checkbox',
                 width: "10em",
                 default: true,
+            },
+        },
+    },
+    vat: {
+        api: _api + "/vats",
+        refetch: true,
+        actions: {
+            del: true,
+            edit: true,
+        },
+        labels: {
+            list: "VAT Codes",
+            add: "New Code",
+            edit: "Edit Code",
+        },
+        form: {
+            // width: "500px",
+        },
+        fields: {
+            jnlType: {
+                text: 'Type',
+                required: true,
+                options: ["BUY", "SELL", "BUY_CN", "SELL_CN"],
+                type: 'select',
+            },
+            code: {
+                text: 'Code',
+                required: true,
+            },
+            box: {
+                text: 'VAT - declaration box',
+                required: true,
+            },
+            baseBox: {
+                text: 'Base - declaration box',
+                required: true,
+            },
+            accId: {
+                text: 'VAT Account',
+                type: "autocomplete",
+                options: [],
+                value: "id",
+                label: "label",
+                required: true,
+                grid: false,
+            },
+            accName: {
+                text: 'VAT Account',
+                type: "autocomplete",
+                options: [],
+                value: "id",
+                label: "label",
+                required: true,
+                form: false,
+            },
+            pc: {
+                text: 'VAT Percentage',
+                tootip: "Negative for Credit; Positive for Debit",
+                type: 'number',
+                required: true,
+                default: 0,
             },
         },
     },
@@ -166,28 +221,20 @@ let metadata = {
             edit: "Edit Configuration",
         },
         form: {
-            // width: "500px",
         },
         fields: {
-            id:{
-                // value: 'type',
+            id: {
                 text: 'Name',
                 required: true,
                 disabled: true,
-                // width: "30em",
-                // email: true,
             },
-            val:{
-                // value: 'name',
+            val: {
                 text: 'Value',
-                // width: "30em"
             },
-            descr:{
-                // value: 'name',
+            descr: {
                 text: 'Description',
                 readonly: true,
                 type: 'textarea'
-                // width: "30em"
             },
         },
     },
