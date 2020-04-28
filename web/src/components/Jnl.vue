@@ -21,7 +21,7 @@ export default {
   methods: {
     feedback(data) {
       // alert(data.operation)
-      if(data.operation != "R") this.$emit("feedback", "jnl_update");
+      if(data.operation != "R") this.$emit("jnlUpdated");
       appBus.$emit("feedback", data);
     }
   }

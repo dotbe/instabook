@@ -2,24 +2,22 @@
 <style src="./Doc.style.css"></style>
 <script>
 // import { VueMaskFilter } from 'v-mask'
+import MagicGrid from "../lib/MagicGrid";
 import MagicTools from "../lib/MagicTools";
 import Lines from "./Lines";
 import { appBus } from "../main";
 import { _ } from "vue-underscore";
 
 export default {
+  props: ["metadata", "config", "file", "accs", "filter"],
   data() {
     return {
-      balanced: false,
-      balance: false,
-      balanceMustZero: undefined,
       validForm: false,
       doc: {},
-      lastDoc: {}
+      lastDoc: {},
     };
   },
-  props: ["metadata", "config", "file", "accs", "filter"],
-  components: { Lines },
+  components: { Lines, MagicGrid },
   filters: {
     num(val) {
       return MagicTools.formatNumber(val);
@@ -37,14 +35,6 @@ export default {
       return MagicTools.formatRef(val);
     }
   },
-  // computed: {
-  //   nextRef() {
-  //     if (this.doc.ref == null) {
-  //       return this.filter.jnl.nextRef == null ? 1 : this.filter.jnl.nextRef;
-  //     }
-  //     return this.doc.ref;
-  //   }
-  // },
   watch: {
     "filter.jnl"() {
       this.initDoc();
@@ -53,7 +43,58 @@ export default {
       this.initDoc();
     }
   },
+  computed: {
+    balance() {
+      if (!this.validForm) return false;
+      console.log("master num", MagicTools.isNumber(this.doc.masterAmount));
+      if (this.master.is && !MagicTools.toNumber(this.doc.masterAmount))
+        return false;
+      let a = this.master.sign * MagicTools.toNumber(this.doc.masterAmount);
+      let d = 0;
+      let c = 0;
+      this.doc.lines.forEach(line => {
+        d += MagicTools.toNumber(line.d);
+        c += MagicTools.toNumber(line.c);
+      });
+      if (d + c == 0) return false;
+      return a + d - c;
+    },
+     master() {
+      let master = {
+        is: false,
+        accs: null,
+        accLabel: null,
+        sign: 0,
+        zero: MagicTools.formatNumber(0)
+      };
+      if (this.filter.jnl.type.match(/BUY|SELL/)) {
+        master.is = true;
+        if (this.filter.jnl.type.match(/BUY/)) {
+          master.accs = this.accs.suppliers;
+          master.accLabel = "Supplier";
+        } else {
+          master.accs = this.accs.customers;
+          master.accLabel = "Customer";
+        }
+        if (this.filter.jnl.type.match(/BUY$|SELL_CN/)) master.sign = -1;
+        else master.sign = 1;
+      }
+      return master
+    },
+  },
   methods: {
+    addAccount(){
+      // dialog of the MagicGrid 
+      this.$refs.magic.add()
+    },
+    refreshAccounts(){
+      // console.log("refreshAccounts->accountAdded")
+      this.$emit("accAdded")
+    },
+    feedback(data){
+      // relay the MagicGrid feedback
+      appBus.$emit("feedback", data)
+    },
     elByRef(ref, i = 0) {
       let el = this.$refs[ref];
       if (Array.isArray(el)) return el[i];
@@ -61,6 +102,7 @@ export default {
     },
     err(ref, msg = false, i = 0, condition = true) {
       let el = this.elByRef(ref, i);
+      if (!el) return;
       el.errorMessages.splice(0, el.errorMessages.length);
       if (msg && condition) {
         el.errorMessages.push(msg);
@@ -72,7 +114,6 @@ export default {
       if (this.doc.lines.length == 1) return;
       this.doc.lines.splice(index, 1);
       this.doc.lines.forEach((el, index) => (el.i = index + 1));
-      this.balanceChecker();
     },
     addLine(index = null) {
       let focus = true;
@@ -83,8 +124,8 @@ export default {
       this.doc.lines.splice(index, 0, {
         i: index + 1,
         accId: null,
-        d: MagicTools.formatNumber(0),
-        c: MagicTools.formatNumber(0),
+        d: this.master.zero,
+        c: this.master.zero,
         comment: null
       });
       if (focus) this.$refs.accId[index].focus();
@@ -94,11 +135,10 @@ export default {
     async save() {
       // re-validate
       let result;
-      this.balanceChecker();
       if (!this.validForm) return;
       this.doc.jnlId = this.filter.jnl.id;
       this.doc.ref = MagicTools.toNumber(this.doc.ref);
-      let a = 0;
+      let a = this.master.sign * MagicTools.toNumber(this.doc.masterAmount);
       // line operation: set line.amount = d-c and remove empty doc.lines and renumber line.i
       this.doc.lines.forEach(el => {
         el.amount = MagicTools.toNumber(el.d) - MagicTools.toNumber(el.c);
@@ -106,13 +146,7 @@ export default {
       this.doc.lines = this.doc.lines.filter(el => el.amount != 0);
       this.doc.lines.forEach((el, index) => (el.i = index + 1));
 
-      // add line i=0 for BUY/SELL with master*
-      if (this.filter.jnl.type.match(/BUY|SELL_CN/)) {
-        a = -MagicTools.toNumber(this.doc.masterAmount);
-      } else if (this.filter.jnl.type.match(/BUY_CN|SELL/)) {
-        a = MagicTools.toNumber(this.doc.masterAmount);
-      }
-      if (a != 0) {
+      if (this.master.is) {
         this.doc.lines.unshift({
           accId: this.doc.masterAccId,
           i: 0,
@@ -137,44 +171,12 @@ export default {
         this.initDoc();
       }
     },
-    balanceChecker() {
-      this.balanced = false;
-      this.balance = 0;
-      this.balanceMustZero = undefined;
-      if (!this.validForm) return;
-      /*
-        DIVERSE          sum(d) - sum(c) = 0 (a=0)
-        FINANCE      a + sum(d) - sum(c) = x (end balance)
-        BUY/SELL_CN -a + sum(d) - sum(c) = 0
-        BUY_CN/SELL  a + sum(d) - sum(c) = 0
-      */
-      this.balanceMustZero = true;
-      let a = MagicTools.toNumber(this.doc.masterAmount);
-      if (this.filter.jnl.type.match(/BUY|SELL_CN/)) {
-        this.balance = -a;
-      } else if (this.filter.jnl.type.match(/BUY_CN|SELL/)) {
-        this.balance = a;
-      } else if (this.filter.jnl.type.match(/FINANCE/)) {
-        this.balanceMustZero = false;
-        this.balance = a;
-      } else if (this.filter.jnl.type.match(/DIVERS/)) {
-        this.balance = 0;
-      }
-      this.doc.lines.forEach(line => {
-        this.balance =
-          this.balance +
-          MagicTools.toNumber(line.d) -
-          MagicTools.toNumber(line.c);
-      });
-      this.balanced = this.balanceMustZero ? this.balance == 0 : true;
-    },
     refChecker() {
       let test = MagicTools.toNumber(this.doc.ref, 0, true);
       this.err("ref");
       if (test && test > 19000000 && test < 20999999)
         this.doc.ref = MagicTools.formatRef(test);
       else this.err("ref", `Invalid format: ${this.config.docRef}`);
-      this.balanceChecker();
     },
     dateChecker() {
       this.err("regDate");
@@ -190,17 +192,15 @@ export default {
           this.doc.regDate < this.filter.from.value ||
             this.doc.regDate > this.filter.till.value
         );
-      this.balanceChecker();
     },
     masterAccIdChecker() {
       null;
-      this.balanceChecker();
     },
     masterAmountChecker() {
       let a = MagicTools.toNumber(this.doc.masterAmount, 2, true);
       this.err("masterAmount", "Invalid amount", 0, a == null || a <= 0);
-      if (a >= 0) this.doc.masterAmount = MagicTools.formatNumber(a);
-      this.balanceChecker();
+      if ((a || a == 0) && a >= 0)
+        this.doc.masterAmount = MagicTools.formatNumber(a);
     },
     accIdChecker(i) {
       // set master comment
@@ -214,31 +214,26 @@ export default {
         this.doc.lines[i].comment = this.accs.all.find(
           el => el.id == this.doc.masterAccId
         ).name;
-      // required id c or d are not 0
+      // required if C or D are not 0
       this.err(
         "accId",
         "Required",
         i,
         !this.doc.lines[i].accId &&
-          (this.doc.lines[i].d != MagicTools.formatNumber(0) ||
-            this.doc.lines[i].c != MagicTools.formatNumber(0))
+          (this.doc.lines[i].d != this.master.zero ||
+            this.doc.lines[i].c != this.master.zero)
       );
       // set D/C
       if (
-        this.balanceMustZero &&
-        this.doc.lines[i].d == MagicTools.formatNumber(0) &&
-        this.doc.lines[i].c == MagicTools.formatNumber(0)
+        this.master.is &&
+        this.doc.lines[i].d == this.master.zero &&
+        this.doc.lines[i].c == this.master.zero
       ) {
-        this.doc.lines[i].d =
-          this.balance > 0
-            ? MagicTools.formatNumber(0)
-            : MagicTools.formatNumber(-this.balance);
-        this.doc.lines[i].c =
-          this.balance > 0
-            ? MagicTools.formatNumber(this.balance)
-            : MagicTools.formatNumber(0);
+        if (this.balance > 0)
+          this.doc.lines[i].c = MagicTools.formatNumber(this.balance);
+        else this.doc.lines[i].d = MagicTools.formatNumber(-this.balance);
+        this.balance = 0;
       }
-      this.balanceChecker();
     },
     dChecker(i, src = "d") {
       // set c to 0
@@ -258,16 +253,14 @@ export default {
         this.doc.lines[i][src] = MagicTools.formatNumber(amount);
       }
       // add line if it's the last one
-      if (this.doc.lines.length == i + 1) this.addLine();
-      this.balanceChecker();
+      if (amount > 0 && this.doc.lines.length == i + 1) this.addLine();
     },
     cChecker(i) {
       this.dChecker(i, "c");
     },
-
     async initDoc() {
       if (!this.filter.jnl) return;
-      this.balanced = false;
+
       console.log("EDIT: ", this.$route.params);
       // Get the doc for the jnl
       this.lastDoc = {};
@@ -312,12 +305,10 @@ export default {
             el.d = el.amount > 0 ? el.amount : 0;
             el.c = el.amount < 0 ? el.amount : 0;
           });
-          if (this.filter.jnl.type.match(/BUY.*|SELL.*/)) {
+          if (this.master.is) {
             this.doc.masterAccId = this.doc.lines[0].accId;
             this.doc.masterComment = this.doc.lines[0].comment;
-            this.doc.masterAmount = this.filter.jnl.type.match(/BUY|SELL_CN/)
-              ? -this.doc.lines[0].amount
-              : +this.doc.lines[0].amount;
+            this.doc.masterAmount = Math.abs(this.doc.lines[0].amount);
             this.doc.lines.splice(0, 1);
           }
         }

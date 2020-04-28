@@ -40,36 +40,40 @@
           <td class="acc">
             <!-- IF JNL = BUY/SELL(CN) -->
             <v-autocomplete
-              v-if="filter.jnl.type.match(/BUY.*|SELL.*/)"
+              v-if="master.is"
               v-model="doc.masterAccId"
               ref="masterAccId"
-              :items="filter.jnl.type.match(/BUY.*/)?accs.suppliers:accs.customers"
+              :items="master.accs"
               item-value="id"
               item-text="label"
               :rules="[v => !!v || 'Required']"
               @blur="masterAccIdChecker()"
               :prepend-icon="metadata.icons.people"
-              :label="filter.jnl.type.match(/BUY.*/)?'Supplier':'Customer'"
+              :label="master.accLabel"
               class="title"
             />
+          </td>
+          <td>
+            <v-btn @click="addAccount()" icon color="primary" v-if="master.is">
+              <v-icon>{{metadata.icons.people}}-plus</v-icon>
+            </v-btn>
           </td>
         </tr>
         <tr>
           <td class="vatinc">
             <v-text-field
-              v-if="filter.jnl.type.match(/BUY.*|SELL.*/)"
+              v-if="master.is"
               ref="masterAmount"
               class="title num"
               v-model="doc.masterAmount"
               label="VAT incl."
               :prepend-icon="metadata.icons.amount"
-              :rules="[v => !!v || 'Required']"
+              :rules="[v => (!!v && v != master.zero )|| 'Required']"
               @blur="masterAmountChecker()"
             />
           </td>
-          <td colspan="2">
+          <td colspan="3">
             <v-text-field
-              v-if="filter.jnl.type.match(/BUY.*|SELL.*|DIVERSE/)"
               ref="masterComment"
               class="title"
               style="text-align:right"
@@ -84,7 +88,12 @@
       <table class="lines mt-5">
         <thead>
           <th class="body-1 lineI">#</th>
-          <th class="body-1 lineAccount">Account</th>
+          <th class="body-1 lineAccount">
+            Account
+            <v-btn @click="addAccount()" icon color="primary">
+              <v-icon>{{metadata.icons.account}}-plus</v-icon>
+            </v-btn>
+          </th>
           <th class="body-1 lineD">Debit</th>
           <th class="body-1 lineC">Credit</th>
           <th class="body-1 lineComment">Comment</th>
@@ -146,12 +155,16 @@
           <tr>
             <td></td>
             <td style="vertical-align:top">
-              <v-btn class="primary" @click="save()" :disabled="!(balanced && validForm)">Balance {{balance | bal}}</v-btn>
+              <v-btn
+                class="primary"
+                @click="save()"
+                :disabled="!(balance === 0 && validForm)"
+              >Balance {{balance | bal}}</v-btn>
             </td>
             <td colspan="3" class="caption" style="color:IndianRed">
               <!-- <ul>
                 <li v-for="error in errors" :key="error">{{error}}</li>
-              </ul> -->
+              </ul>-->
             </td>
           </tr>
         </tbody>
@@ -164,10 +177,22 @@
       </v-btn>
     </div>
     <Lines :lines="lastDoc.v_lines" />
+
+    <MagicGrid
+      :config="metadata.acc"
+      @feedback="feedback"
+      @added="refreshAccounts"
+      :showGrid="false"
+      ref="magic"
+    />
+
     <hr class="mt-10" />
     <hr />
     <h2>doc</h2>
     {{doc}}
+    <hr />
+    <h2>master</h2>
+    {{master}}
     <hr />
     <h2>filter</h2>
     {{filter}}
@@ -175,13 +200,11 @@
     <h2>confif</h2>
     {{config}}
     <hr />
-    <h2>doc</h2>
-    {{doc}}
+    <h2>lastdoc</h2>
+    {{lastDoc}}
     <hr />
     <h2>accs</h2>
     {{accs}}
   </div>
-  <div v-else class="title">
-Select a journal
-  </div>
+  <div v-else class="title">Select a journal</div>
 </template>
