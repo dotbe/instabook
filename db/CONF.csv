@@ -1,0 +1,6 @@
+id,val,descr
+accBS,"1,2,3,4,5","Balance Sheet (Bilan) accounts list"
+accC,400,"Customes account prefix (start with)"
+accIS,"6,7","Income Statement (Résultat) accounts list"
+accS,440,"Suppliers account prefix (start with)"
+docRef,YYYY/NNNN,"Document number format. Number must be unique for a Journal for all years: YYYYNNN, YYMMNN, YYNNN, NNNNN"

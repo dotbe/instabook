@@ -2,19 +2,19 @@
 <style src="./Doc.style.css"></style>
 <script>
 // import { VueMaskFilter } from 'v-mask'
+import { mapGetters } from "vuex";
 import MagicGrid from "../lib/MagicGrid";
 import MagicTools from "../lib/MagicTools";
 import Lines from "./Lines";
 import { appBus } from "../main";
-import { _ } from "vue-underscore";
 
 export default {
-  props: ["metadata", "config", "file", "accs", "filter"],
+  props: ["metadata", "file", "filter"],
   data() {
     return {
       validForm: false,
       doc: {},
-      lastDoc: {},
+      lastDoc: {}
     };
   },
   components: { Lines, MagicGrid },
@@ -44,6 +44,7 @@ export default {
     }
   },
   computed: {
+   ...mapGetters(["config", "accs"]),
     balance() {
       if (!this.validForm) return false;
       console.log("master num", MagicTools.isNumber(this.doc.masterAmount));
@@ -59,7 +60,7 @@ export default {
       if (d + c == 0) return false;
       return a + d - c;
     },
-     master() {
+    master() {
       let master = {
         is: false,
         accs: null,
@@ -79,21 +80,18 @@ export default {
         if (this.filter.jnl.type.match(/BUY$|SELL_CN/)) master.sign = -1;
         else master.sign = 1;
       }
-      return master
-    },
+      return master;
+    }
   },
   methods: {
-    addAccount(){
-      // dialog of the MagicGrid 
-      this.$refs.magic.add()
+    addAccount() {
+      // dialog of the MagicGrid
+      this.$refs.magic.add();
     },
-    refreshAccounts(){
-      // console.log("refreshAccounts->accountAdded")
-      this.$emit("accAdded")
-    },
-    feedback(data){
+    feedback(data) {
       // relay the MagicGrid feedback
-      appBus.$emit("feedback", data)
+      appBus.$emit("feedback", data);
+      if (data.entity == "acc") this.$emit("accAdded");
     },
     elByRef(ref, i = 0) {
       let el = this.$refs[ref];
@@ -274,12 +272,12 @@ export default {
       }
       // create an empty doc
       this.doc = {
-        ref: _.isEmpty(this.lastDoc)
-          ? new Date().getFullYear() * 10000 + 1
-          : this.lastDoc.ref + 1,
-        regDate: _.isEmpty(this.lastDoc)
-          ? MagicTools.date.today()
-          : this.lastDoc.regDate,
+        ref: this.lastDoc.id
+          ? this.lastDoc.ref + 1
+          : new Date().getFullYear() * 10000 + 1,
+        regDate: this.lastDoc.id
+          ? this.lastDoc.regDate
+          : MagicTools.date.today(),
         masterAccId: null,
         masterAmount: 0,
         masterComment: null,

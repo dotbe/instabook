@@ -4,7 +4,14 @@ const { v4: uuidv4 } = require('uuid');
 class SequelizeHelper {
     constructor(entity) {
         this.entity = entity
-        this.resp = { ok: true, status: 200, message: "Success", operation: null, data: null }
+        this.resp = {
+            ok: true,
+            status: 200,
+            message: "Success",
+            entity: entity.name,
+            operation: null,
+            data: null
+        }
     }
     errorHandler(err) {
         this.resp.message = err.message

@@ -2,7 +2,8 @@
 
 What?
 ---
-An easy accounting webapp using mysql, node, express, sequelize, vue.js
+An easy accounting webapp using fo the back-end: mysql, node, express, sequelize
+and for the front-end: vue.js, vuex, vuetity
 
 Main entities: 
 - file (a File is an entity - company...)
@@ -180,7 +181,7 @@ npm install cors --save
 /instabook>vue create web
 /web>vue add vuetify
 /web>npm install --save vue-router
-/web>npm install vue-underscore
+/web>npm install --save vuex
 /web>npm run serve
 ````
 Tips

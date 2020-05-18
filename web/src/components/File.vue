@@ -8,6 +8,7 @@
 }
 </style>
 <script>
+import {mapGetters} from 'vuex'
 import { appBus } from "../main";
 import MagicTools from "../lib/MagicTools";
 import metadata from "../metadata";
@@ -17,13 +18,13 @@ export default {
     return {
       MagicTools,
       metadata,
-      config: {},
+      // config: {},
       file: null,
-      accs: {
-        all: [],
-        suppliers: [],
-        customers: []
-      },
+      // accs: {
+      //   all: [],
+      //   suppliers: [],
+      //   customers: []
+      // },
       filter: {
         jnl: null,
         period: "ty",
@@ -40,7 +41,9 @@ export default {
       tab: this.$route.path
     };
   },
+  computed: mapGetters(["accs", "config", "vats", "jnlTypes"]),
   methods: {
+    // ...mapActions(["fetchConfig", "fetchAccs"]),
     refresh() {
       alert("ok");
     },
@@ -80,8 +83,8 @@ export default {
     },
     sortJnls() {
       this.file.jnls.sort((a, b) => {
-        let n1 = this.metadata.jnl.fields.type.options.indexOf(a.type);
-        let n2 = this.metadata.jnl.fields.type.options.indexOf(b.type);
+        let n1 = this.jnlTypes.indexOf(a.type);
+        let n2 = this.jnlTypes.indexOf(b.type);
         return n1 < n2 ? -1 : 1;
       });
     },
@@ -94,28 +97,30 @@ export default {
       this.sortJnls();
       this.filter.jnl = this.file.jnls[0] ? this.file.jnls[0] : null;
     },
-    async fetchAccs() {
-      let payload = await MagicTools.get(this.metadata.acc.api);
-      appBus.$emit("feedback", payload);
-      this.accs.all = payload.data;
-      this.accs.all.forEach(el => (el.label = el.code + " (" + el.name + ")"));
-      let reS = new RegExp("^" + this.config.accS);
-      let reC = new RegExp("^" + this.config.accC);
-      this.accs.suppliers = this.accs.all.filter(el => el.code.match(reS));
-      this.accs.customers = this.accs.all.filter(el => el.code.match(reC));
-      console.log("fetchAccs", this.accs)
-    },
-    async fetchConfig() {
-      let confs = await MagicTools.get(this.metadata.conf.api);
-      appBus.$emit("feedback", confs);
-      confs.data.forEach(el => (this.config[el.id] = el.val));
-    }
+    // async fetchAccs0() {
+    //   let payload = await MagicTools.get(this.metadata.acc.api);
+    //   appBus.$emit("feedback", payload);
+    //   this.accs.all = payload.data;
+    //   this.accs.all.forEach(el => (el.label = el.code + " (" + el.name + ")"));
+    //   let reS = new RegExp("^" + this.config.accS);
+    //   let reC = new RegExp("^" + this.config.accC);
+    //   this.accs.suppliers = this.accs.all.filter(el => el.code.match(reS));
+    //   this.accs.customers = this.accs.all.filter(el => el.code.match(reC));
+    //   console.log("fetchAccs", this.accs)
+    // },
+    // async fetchConfig() {
+    //   let confs = await MagicTools.get(this.metadata.conf.api);
+    //   appBus.$emit("feedback", confs);
+    //   confs.data.forEach(el => (this.config[el.id] = el.val));
+    // }
   },
   mounted() {
     console.log("route", this.$route.params);
-    this.fetchConfig();
+    
+    // this.fetchConfig(false);
+    //this.fetchAccs(false);
     this.fetchFile();
-    this.fetchAccs();
+    // this.fetchAccs0();
     this.changeDates();
   }
 };

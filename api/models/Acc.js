@@ -6,13 +6,14 @@ const Acc = db.define('Acc',
             allowNull: false,
             primaryKey: true,
         },
-        defAccId: {
+        accId: {
             label: "Counterpart Account",
             type: Sequelize.STRING(50),
+            
         },
         vatCode: {
             label: "Default VAT",
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(10),
         },
         code: {
             label: "Account Code",
@@ -47,7 +48,7 @@ const Acc = db.define('Acc',
     },
     {
         freezeTableName: true,
-        order: [["code" ,"ASC"]]
+        order: [["code", "ASC"]]
     }
 );
 

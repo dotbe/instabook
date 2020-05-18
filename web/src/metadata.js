@@ -79,12 +79,12 @@ let metadata = {
                 text: 'Name',
                 required: true,
             },
-            defAccId: {
+            accId: {
                 text: 'Counterpart Account',
                 type: "autocomplete",
-                options: "accs",
-                value:"id",
-                label:"label",
+                options: [],
+                value: "id",
+                label: "label",
             },
             vatCode: {
                 text: 'VAT Code',
@@ -122,7 +122,7 @@ let metadata = {
                 text: 'Type',
                 disabled: true,
                 required: true,
-                options: ["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
+                options: [],
                 type: 'select',
             },
             name: {
@@ -132,7 +132,7 @@ let metadata = {
             accId: {
                 text: 'Counterpart',
                 type: "autocomplete",
-                options: "accs",
+                options: [],
                 value: "id",
                 label:"label"
             },

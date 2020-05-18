@@ -1,7 +1,7 @@
 let Tools = {
     async get(api, id = null) {
         let result
-        await fetch(api + (id == null?"":"/" + id))
+        await fetch(api + (id == null ? "" : "/" + id))
             .then(payload => payload.json())
             .then(payload => result = payload)
             .catch(err => result = err)
@@ -185,7 +185,7 @@ let Tools = {
     },
     fieldRules(field) {
         let rules = [];
-        if (field.required) rules.push(value => !!value || "Required!");
+        if (field.required) rules.push(value => (!!value || value === 0) || "Required!");
         if (field.max)
             rules.push(
                 value =>

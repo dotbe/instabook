@@ -181,7 +181,6 @@
     <MagicGrid
       :config="metadata.acc"
       @feedback="feedback"
-      @added="refreshAccounts"
       :showGrid="false"
       ref="magic"
     />

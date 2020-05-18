@@ -34,6 +34,7 @@
 import { appBus } from "./main";
 // import MagicBus from './lib/MagicBus'
 // Vue.mixin(MagicBus)
+import {mapGetters, mapActions} from 'vuex'
 
 export default {
   data() {
@@ -43,6 +44,8 @@ export default {
       feedbackColor: ""
     };
   },
+  computed: mapGetters(["config", "accs", "vats"]),
+  methods: mapActions(["fetchConfig", "fetchAccs", "fetchVats"]),
   created() {
     // MagicBus.$on("feedback", data => {
     //   this.feedback = true;
@@ -63,6 +66,9 @@ export default {
         this.feedbackColor = "pink";
       }
     });
+    this.fetchConfig()
+    this.fetchAccs()
+    this.fetchVats()
   }
 };
 </script>

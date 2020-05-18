@@ -64,7 +64,7 @@
         </v-card-title>
 
         <v-card-text>
-          <slot v-bind:item="editedItem">
+          <!-- <slot v-bind:item="editedItem"> -->
             <v-form ref="form" v-model="valid" :lazy-validation="false">
               <v-row v-for="(fieldName, index) in fieldNames" :key="fieldName">
                 <template v-if="config.fields[fieldName].form !== false">
@@ -104,8 +104,8 @@
                     @keyup.enter="save"
                     :autofocus="index==0"
                   />
-                  <v-select
-                    autocomplete
+                 
+                  <v-autocomplete
                     v-else-if="config.fields[fieldName].type == 'autocomplete'"
                     v-model="editedItem[fieldName]"
                     :label="config.fields[fieldName].text"
@@ -133,7 +133,7 @@
                 </template>
               </v-row>
             </v-form>
-          </slot>
+          <!-- </slot> -->
         </v-card-text>
 
         <v-card-actions>

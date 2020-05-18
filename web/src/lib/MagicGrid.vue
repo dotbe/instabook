@@ -74,7 +74,6 @@ export default {
               console.log("deleted: ", payload);
               this.items.splice(index, 1);
               this.fetch();
-              this.$emit("deleted", item)
             }
           })
           .catch(err => this.catch(err));
@@ -99,7 +98,6 @@ export default {
               this.items.splice(this.editedIndex, 1, payload.data);
               console.log("updated: ", payload.data);
               this.fetch();
-              this.$emit("updated", payload.data)
             }
           })
           .catch(err => this.catch(err));
@@ -118,7 +116,6 @@ export default {
               this.items.push(payload.data);
               console.log("added: ", payload.data);
               this.fetch();
-              this.$emit("added", payload.data)
             }
           })
           .catch(err => this.catch(err));

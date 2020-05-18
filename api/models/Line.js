@@ -28,7 +28,7 @@ const Line = db.define('line',
         },
         vatCode: {
             label: "VAT Code",
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(10),
         },
         amount: {
             label: "Amount",

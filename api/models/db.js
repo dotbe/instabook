@@ -32,3 +32,16 @@ V_Line.belongsTo(Doc)
 
 Acc.hasMany(Line)
 Line.belongsTo(Acc)
+
+Acc.belongsTo(Acc, {as: 'defaultAcc', foreignKey: 'accId'})
+Vat.belongsTo(Acc, {as: 'acc', foreignKey: 'accId'})
+
+// Acc.hasOne(Vat)
+// Vat.belongsTo(Acc)
+
+// Acc.hasMany(Acc)
+// Acc.hasOne(Acc)
+// Acc.belongsTo(Acc, {foreignKey: 'defAccId'})
+// Acc.hasOne(Acc, {as:"ddd', foreignKey: 'defAccId'})
+
+//Acc.hasMany(Vat)

@@ -109,13 +109,13 @@
         </v-tabs>
         <router-view
           :metadata="metadata"
-          :config="config"
           :file="file"
-          :accs="accs"
           :filter="filter"
-          @accAdded="fetchAccs()"
           @jnlUpdated="fetchFile()"
         ></router-view>
+          <!-- :config="config"
+          :accs="accs"
+          @accAdded="fetchAccs()" -->
       </v-card>
     </v-card>
   </div>

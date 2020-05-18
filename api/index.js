@@ -25,10 +25,11 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Authorization");
     res.header("Content-Type", "application/json");
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
     res.header("Access-Control-Allow-Credentials", "true");
     next();
 });
+
 // FILE
 app.get('/api/files', (req, res) => {
     new SequelizeHelper(File).restFind(req, res)
@@ -112,6 +113,7 @@ app.delete('/api/jnls/:id', (req, res) => {
 
 // ACC
 app.get('/api/accs/:id?', (req, res) => {
+     req.params.attributes = { include: ["defaultAcc"] }
     new SequelizeHelper(Acc).restFind(req, res)
 })
 app.post('/api/accs', (req, res) => {
@@ -140,6 +142,7 @@ app.delete('/api/confs/:id', (req, res) => {
 
 // VAT
 app.get('/api/vats/:id?', (req, res) => {
+    req.params.attributes = { include: ["acc"] }
     new SequelizeHelper(Vat).restFind(req, res)
 })
 app.post('/api/vats', (req, res) => {

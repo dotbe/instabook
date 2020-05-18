@@ -1,4 +1,4 @@
-const Vat = db.define('vat',
+const Vat = db.define('Vat',
     {
         id: {
             label: "VAT ID",
@@ -21,11 +21,6 @@ const Vat = db.define('vat',
             type: Sequelize.STRING(10),
             allowNull: false,
         },
-        accName:{
-            label: "VAT Account",
-            type: Sequelize.STRING(50),
-            calculated: true,
-        },
         accId: {
             label: "VAT Account",
             allowNull: false,
@@ -44,7 +39,6 @@ const Vat = db.define('vat',
 
     },
     {
-        viewName: "v_vat",
         freezeTableName: true,
         order: [["jnlType", "ASC"], ["code", "ASC"]]
     }

@@ -3,6 +3,8 @@ import vuetify from './plugins/vuetify';
 import VueRouter from 'vue-router'
 import underscore from 'vue-underscore';
 
+import store from './store'
+
 import App from './App.vue'
 import File from './components/File'
 import GC from './components/GenericCRUD'
@@ -46,7 +48,8 @@ export const appBus = new Vue()
 // })
 new Vue({
     el: '#app',
-    vuetify,
+    store,
     router,
+    vuetify,
     render: h => h(App)
 })//.$mount('#app')
