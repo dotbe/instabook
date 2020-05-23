@@ -45,6 +45,12 @@ let Tools = {
             }
         }
     },
+    objVal(obj, prop) {
+        if (obj == null) return null
+        let a = prop.split(".")
+        if (a.length == 1) return obj[prop] ? obj[prop] : null
+        else return (obj[a[0]] && obj[a[0]][a[1]]) ? obj[a[0]][a[1]] : null
+    },
     formatNumber(value, decimals = 2) {
         return parseFloat(value).toLocaleString(undefined, {
             minimumFractionDigits: decimals

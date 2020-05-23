@@ -8,17 +8,16 @@ import MagicGrid from "../lib/MagicGrid";
 import { appBus } from "../main";
 
 export default {
-  props: ["metadata", "file"],
+  props: ["file"],
   components: { MagicGrid },
   computed: {
-    ...mapGetters(["jnlTypes"]),
+    ...mapGetters(["metadata"]),
     params(){
       return {"fileId.eq": this.file.id}
     },
     metadatum() {
       let md = Object.assign({}, this.metadata.jnl)
       md.fields.fileId.default = this.file.id
-      md.fields.type.options = this.jnlTypes
       return md;
     }
   },

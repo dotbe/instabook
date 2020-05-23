@@ -7,6 +7,8 @@
       :calculate-widths="true"
       :dense="false"
       :loading="!fetched"
+      :items-per-page="50"
+      :footer-props="{'items-per-page-options': [10,20,50,100,{text:'All', value:-1}]}"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -48,10 +50,10 @@
               </span>
             </span>
             <span v-if="header.type == 'checkbox'">
-              <v-icon v-if="myprops.item[header.value]" class="mx-2">mdi-checkbox-marked-outline</v-icon>
+              <v-icon v-if="MagicTools.objVal(myprops.item, header.value)" class="mx-2">mdi-checkbox-marked-outline</v-icon>
               <v-icon v-else class="mx-2">mdi-checkbox-blank-outline</v-icon>
             </span>
-            <span v-else>{{ MagicTools.format(myprops.item[header.value], header.type) }}</span>
+            <span v-else>{{ MagicTools.format(MagicTools.objVal(myprops.item, header.value), header.type) }}</span>
           </td>
         </tr>
       </template>

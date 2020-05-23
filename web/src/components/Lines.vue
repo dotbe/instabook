@@ -68,7 +68,6 @@ td {
 }
 </style>
 <script>
-// import { VueMaskFilter } from 'v-mask'
 import MagicTools from "../lib/MagicTools";
 
 export default {
@@ -76,9 +75,6 @@ export default {
   filters: {
     num(val) {
       return MagicTools.formatNumber(val);
-      // return new Intl.NumberFormat("fr-BE", {
-      //   minimumFractionDigits: 2
-      // }).format(val);
     },
     ref(val) {
       return MagicTools.formatRef(val);

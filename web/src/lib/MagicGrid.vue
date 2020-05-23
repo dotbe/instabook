@@ -1,7 +1,6 @@
 <template src="./MagicGrid.template.vue"></template>
   
 <script>
-// import {appBus} from '../main'
 import MagicTools from "./MagicTools";
 
 export default {

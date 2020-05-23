@@ -111,9 +111,14 @@ const metadata = {
       edit: "Edit File"
     },
     fields: [
-      { value: "name", text: "Name", required:true },
-      { value: "taxRef", text: "VAT" },
-      
+      name: { text: "Name", required:true },
+      taxRef: { text: "VAT" },
+      "user.name": { form:false, text: "User" },
+      userId: { grid:false, text: "User" },
+      type: { type:"autocomplete", options:[], value: "id", label: "label", text: "Type" },
+      status: { type:"select", options:["ACTIVE", "INACTIVE"], text: "Status" },
+      other: { type:"number", min:0, max:10, required: true },
+      code: { regexpx: [//]},
     ]
   }
 };

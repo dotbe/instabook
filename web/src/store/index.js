@@ -1,21 +1,21 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
 
-// import { appBus } from "../main";
 import MagicTools from '../lib/MagicTools'
 import metadata from '../metadata'
 
 Vue.use(Vuex)
 
-
-
 const state = {
+    metadata: metadata,
     config: {},
     accs: {},
     vats: {},
-    jnlTypes: ["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
 }
 const getters = {
+    metadata(state) {
+        return state.metadata
+    },
     config(state) {
         return state.config
     },
@@ -25,15 +25,13 @@ const getters = {
     vats(state) {
         return state.vats
     },
-    jnlTypes(state) {
-        console.log("getters.jnlTypes", state.jnlTypes)
-        return state.jnlTypes
-    }
 }
 const mutations = {
     setConfig(state, config) {
         state.config = config
         state.config.forEach(el => (state.config[el.id] = el.val));
+        state.metadata.vat.fields.jnlType.options = state.metadata.ref.jnlTypes;
+        state.metadata.jnl.fields.type.options = state.metadata.ref.jnlTypes;
     },
     setAccs(state, accs) {
         state.accs.all = accs
@@ -42,11 +40,12 @@ const mutations = {
         state.accs.suppliers = state.accs.all.filter(el => el.code.match(re));
         re = new RegExp("^" + state.config.accC);
         state.accs.customers = state.accs.all.filter(el => el.code.match(re));
+        state.metadata.acc.fields.accId.options = state.accs.all;
+        state.metadata.vat.fields.accId.options = state.accs.all;
     },
     setVats(state, vats) {
-        console.log("setVats", state.vats)
         state.vats.codes = []
-        state.jnlTypes.forEach(el => state.vats[el] = { codes: [] })
+        state.metadata.ref.jnlTypes.forEach(el => state.vats[el] = { codes: [] })
         vats.forEach(el => {
             if (state.vats[el.jnlType].codes.indexOf(el.code) == -1) {
                 state.vats[el.jnlType].codes.push(el.code)
@@ -56,29 +55,24 @@ const mutations = {
             }
             state.vats[el.jnlType][el.code].push(el)
         })
+        state.metadata.acc.fields.vatCode.options = state.vats.codes;
     },
 }
 const actions = {
-    test({ commit }) {
-        console.log("test")
-        commit
-    },
     async fetchAccs(context, force = true) {
-        console.log('actions.fetchAccs.state/before', context.state.accs)
         if (force || context.state.accs === {}) {
-
-            const resp = await MagicTools.get(metadata.acc.api)
+            const resp = await MagicTools.get(state.metadata.acc.api)
             console.log('actions.fetchAccs', resp)
             context.commit('setAccs', resp.data);
         }
     },
     async fetchConfig(context) {
-        const resp = await MagicTools.get(metadata.conf.api)
+        const resp = await MagicTools.get(state.metadata.conf.api)
         console.log('actions.fetchConfig', resp)
         context.commit('setConfig', resp.data);
     },
     async fetchVats(context) {
-        const resp = await MagicTools.get(metadata.vat.api)
+        const resp = await MagicTools.get(state.metadata.vat.api)
         console.log('actions.fetchVats', resp)
         context.commit('setVats', resp.data);
     },

@@ -18,6 +18,9 @@ let metadata = {
         FINANCE: "mdi-currency-eur",
         DIVERSE: "mdi-inbox",
     },
+    ref: {
+        jnlTypes: ["BUY", "SELL", "BUY_CN", "SELL_CN", "FINANCE", "DIVERSE"],
+    },
     file: {
         api: _api + "/files",
         refetch: false,
@@ -79,17 +82,22 @@ let metadata = {
                 text: 'Name',
                 required: true,
             },
+            "defaultAcc.code":{
+                text: 'Counterpart',
+                form: false,
+            },
             accId: {
                 text: 'Counterpart Account',
                 type: "autocomplete",
                 options: [],
                 value: "id",
                 label: "label",
+                grid: false,
             },
             vatCode: {
                 text: 'VAT Code',
                 type: "select",
-                options: "vatCodes",
+                options: [],
             },
             active: {
                 text: 'Active',
@@ -163,7 +171,7 @@ let metadata = {
             jnlType: {
                 text: 'Type',
                 required: true,
-                options: ["BUY", "SELL", "BUY_CN", "SELL_CN"],
+                options: [],
                 type: 'select',
             },
             code: {
@@ -187,13 +195,8 @@ let metadata = {
                 required: true,
                 grid: false,
             },
-            accName: {
+            "acc.code": {
                 text: 'VAT Account',
-                type: "autocomplete",
-                options: [],
-                value: "id",
-                label: "label",
-                required: true,
                 form: false,
             },
             pc: {

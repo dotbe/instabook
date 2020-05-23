@@ -9,7 +9,7 @@ import Lines from "./Lines";
 import { appBus } from "../main";
 
 export default {
-  props: ["metadata", "file", "filter"],
+  props: ["file", "filter"],
   data() {
     return {
       validForm: false,
@@ -44,7 +44,7 @@ export default {
     }
   },
   computed: {
-   ...mapGetters(["config", "accs"]),
+   ...mapGetters(["metadata", "config", "accs"]),
     balance() {
       if (!this.validForm) return false;
       console.log("master num", MagicTools.isNumber(this.doc.masterAmount));
