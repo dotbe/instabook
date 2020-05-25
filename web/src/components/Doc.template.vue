@@ -43,20 +43,24 @@
               v-if="master.is"
               v-model="doc.masterAccId"
               ref="masterAccId"
+              :key="componentKey"
               :items="master.accs"
               item-value="id"
               item-text="label"
               :rules="[v => !!v || 'Required']"
               @blur="masterAccIdChecker()"
+              @keyup="searchedInput=searchInput"
               :prepend-icon="metadata.icons.people"
               :label="master.accLabel"
               class="title"
+              :search-input.sync="searchInput"
+              :no-data-text="noAccountText"
             />
           </td>
           <td>
-            <v-btn @click="addAccount()" icon color="primary" v-if="master.is">
+            <!-- <v-btn @click="addAccount()" icon color="primary" v-if="master.is" tabindex="-1">
               <v-icon>{{metadata.icons.people}}-plus</v-icon>
-            </v-btn>
+            </v-btn> -->
           </td>
         </tr>
         <tr>
@@ -90,7 +94,7 @@
           <th class="body-1 lineI">#</th>
           <th class="body-1 lineAccount">
             Account
-            <v-btn @click="addAccount()" icon color="primary">
+            <v-btn @click="addAccount()" icon color="primary" tabindex="-1">
               <v-icon>{{metadata.icons.account}}-plus</v-icon>
             </v-btn>
           </th>
@@ -106,7 +110,7 @@
               <b>{{line.i}}.</b>
             </td>
             <td>
-              <v-autocomplete
+              <v-combobox
                 v-model="line.accId"
                 ref="accId"
                 :items="accs.all"
@@ -178,12 +182,7 @@
     </div>
     <Lines :lines="lastDoc.v_lines" />
 
-    <MagicGrid
-      :config="metadata.acc"
-      @feedback="feedback"
-      :showGrid="false"
-      ref="magic"
-    />
+    <MagicGrid :config="metadata.acc" @feedback="feedback" :showGrid="false" ref="magic" />
 
     <hr class="mt-10" />
     <hr />

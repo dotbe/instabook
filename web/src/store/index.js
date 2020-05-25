@@ -43,6 +43,21 @@ const mutations = {
         state.metadata.acc.fields.accId.options = state.accs.all;
         state.metadata.vat.fields.accId.options = state.accs.all;
     },
+    addAcc(state, acc) {
+        acc.label = acc.code + " (" + acc.name + ")"
+        state.accs.all.push(acc);
+        state.accs.all.sort((a, b) => (a.code > b.code) ? 1 : -1)
+        if (acc.code.match(new RegExp("^" + state.config.accS))) {
+            state.accs.suppliers.push(acc)
+            state.accs.suppliers.sort((a, b) => (a.code > b.code) ? 1 : -1)
+        }
+        if (acc.code.match(new RegExp("^" + state.config.accC))) {
+            state.accs.customers.push(acc)
+            state.accs.customers.sort((a, b) => (a.code > b.code) ? 1 : -1)
+        }
+        state.metadata.acc.fields.accId.options = state.accs.all;
+        state.metadata.vat.fields.accId.options = state.accs.all;
+    },
     setVats(state, vats) {
         state.vats.codes = []
         state.metadata.ref.jnlTypes.forEach(el => state.vats[el] = { codes: [] })
@@ -75,6 +90,10 @@ const actions = {
         const resp = await MagicTools.get(state.metadata.vat.api)
         console.log('actions.fetchVats', resp)
         context.commit('setVats', resp.data);
+    },
+    addAcc(context, acc) {
+        console.log('actions.addAcc', acc)
+        context.commit('addAcc', acc);
     },
 
 }

@@ -4,14 +4,13 @@
 import MagicTools from "./MagicTools";
 
 export default {
-  props:   {
+  props: {
     config: {},
     params: {},
     showGrid: { type: Boolean, default: true }
   },
   data() {
     return {
-      
       MagicTools,
       items: [],
       editedIndex: -1,
@@ -131,11 +130,15 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
-    add() {
-      this.editedItem = {};
+    add(item = {}) {
+      this.editedItem = item;
       for (let fn in this.config.fields) {
         let field = this.config.fields[fn];
-        this.editedItem[fn] = field.default ? field.default : null;
+        this.editedItem[fn] = item[fn]
+          ? item[fn]
+          : field.default
+          ? field.default
+          : null;
       }
       this.editedIndex = -1;
       this.dialog = true;

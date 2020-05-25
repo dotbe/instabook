@@ -2,7 +2,7 @@
 <style src="./Doc.style.css"></style>
 <script>
 // import { VueMaskFilter } from 'v-mask'
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import MagicGrid from "../lib/MagicGrid";
 import MagicTools from "../lib/MagicTools";
 import Lines from "./Lines";
@@ -14,7 +14,11 @@ export default {
     return {
       validForm: false,
       doc: {},
-      lastDoc: {}
+      lastDoc: {},
+      addedAccIndex: null, //-1 = master
+      searchInput: null,
+      searchedInput: null,
+      componentKey: 0
     };
   },
   components: { Lines, MagicGrid },
@@ -44,7 +48,7 @@ export default {
     }
   },
   computed: {
-   ...mapGetters(["metadata", "config", "accs"]),
+    ...mapGetters(["metadata", "config", "accs"]),
     balance() {
       if (!this.validForm) return false;
       console.log("master num", MagicTools.isNumber(this.doc.masterAmount));
@@ -66,32 +70,56 @@ export default {
         accs: null,
         accLabel: null,
         sign: 0,
-        zero: MagicTools.formatNumber(0)
+        zero: MagicTools.formatNumber(0),
+        startWith: ""
       };
       if (this.filter.jnl.type.match(/BUY|SELL/)) {
         master.is = true;
         if (this.filter.jnl.type.match(/BUY/)) {
           master.accs = this.accs.suppliers;
           master.accLabel = "Supplier";
+          master.startWith = this.config.accS;
         } else {
           master.accs = this.accs.customers;
           master.accLabel = "Customer";
+          master.startWith = this.config.accC;
         }
         if (this.filter.jnl.type.match(/BUY$|SELL_CN/)) master.sign = -1;
         else master.sign = 1;
       }
       return master;
+    },
+    noAccountText() {
+      if (this.searchedInput && this.searchedInput.match(new RegExp("^" + this.master.startWith)))
+        return `Press "Tab" to create "${this.searchedInput}"`;
+      return `Must start with "${this.master.startWith}"`;
     }
   },
   methods: {
-    addAccount() {
+    ...mapActions(["addAcc"]),
+    addAccount(account = {}, addedAccIndex) {
       // dialog of the MagicGrid
-      this.$refs.magic.add();
+      this.$refs.magic.add(account);
+      this.addedAccIndex = addedAccIndex;
     },
-    feedback(data) {
-      // relay the MagicGrid feedback
-      appBus.$emit("feedback", data);
-      if (data.entity == "acc") this.$emit("accAdded");
+    feedback(payload) {
+      appBus.$emit("feedback", payload);
+      // set the new created account
+      if (payload.entity == "Acc" && this.addedAccIndex != null) {
+        // master ACC
+        this.addAcc(payload.data);
+        this.componentKey = this.componentKey + 1;
+        if (this.addedAccIndex == -1) {
+          this.doc.masterAccId = payload.data.id;
+          this.masterAccIdChecker();
+          this.$refs.masterAmount.focus();
+          this.err("masterAmount")
+        } else {
+          // line ACC
+          this.accIdChecker(this.addedAccIndex);
+        }
+        this.addedAccIndex = null;
+      }
     },
     elByRef(ref, i = 0) {
       let el = this.$refs[ref];
@@ -192,7 +220,29 @@ export default {
         );
     },
     masterAccIdChecker() {
-      null;
+      // existing account
+      if (this.doc.masterAccId != null) return;
+      // new wrong account
+      if (
+        this.searchedInput != null &&
+        !this.searchedInput.match(new RegExp("^" + this.master.startWith))
+      ) {
+        this.err("masterAccId", `Must start with "${this.master.startWith}"`);
+        this.doc.masterAccId = null;
+        return;
+      }
+      // new correct account
+      // on added, account is set ... cfr feedback())
+      if (this.searchedInput != null) {
+        this.addAccount(
+          {
+            code: this.searchedInput,
+            name: this.searchedInput.substring(this.master.startWith.length)
+          },
+          -1
+        );
+        this.searchedInput = null;
+      }
     },
     masterAmountChecker() {
       let a = MagicTools.toNumber(this.doc.masterAmount, 2, true);
@@ -201,6 +251,11 @@ export default {
         this.doc.masterAmount = MagicTools.formatNumber(a);
     },
     accIdChecker(i) {
+      if (!this.doc.lines[i].accId.id) {
+        // new account... on added, account is set ... cfr feedback())
+        this.addAccount({ code: this.doc.lines[i] }, i);
+        return; // continue check after account is added
+      }
       // set master comment
       if (!this.doc.masterComment && this.doc.lines[i].accId) {
         this.doc.masterComment = this.accs.all.find(

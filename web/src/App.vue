@@ -11,7 +11,9 @@
         <v-btn light to="/files">Files</v-btn>
         <v-btn light to="/accounts">Accounts</v-btn>
         <v-btn light to="/vats">VAT Codes</v-btn>
-        <v-btn light to="/parameters"><v-icon>mdi-wrench</v-icon></v-btn>
+        <v-btn light to="/parameters">
+          <v-icon>mdi-wrench</v-icon>
+        </v-btn>
       </v-toolbar-items>
       <v-spacer></v-spacer>
     </v-app-bar>
@@ -34,7 +36,7 @@
 import { appBus } from "./main";
 // import MagicBus from './lib/MagicBus'
 // Vue.mixin(MagicBus)
-import {mapGetters, mapActions} from 'vuex'
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   data() {
@@ -52,29 +54,43 @@ export default {
     //   this.feedbackMsg = data;
     // });
     appBus.$on("feedback", data => {
-      if (data) {
-        if (!data.ok) {
-          this.feedback = true;
-          this.feedbackMsg = data.message ? data.message : data;
-          if (!isNaN(data.status) && data.status < 500)
-            this.feedbackColor = "orange";
-          else this.feedbackColor = "red";
-        }
-      } else {
+      if (data && data.ok == false) {
+        // handled error
+        this.feedback = true;
+        this.feedbackMsg = data.message ? data.message : data;
+        if (!isNaN(data.status) && data.status < 500)
+          this.feedbackColor = "orange";
+        else this.feedbackColor = "red";
+      } else if (data && !data.ok) {
+        // unhandled error
         this.feedback = true;
         this.feedbackMsg = "Unknow error: " + data;
         this.feedbackColor = "pink";
+      } else if (data && data.ok && data.operation.match(/C|U|D/)) {
+        // refresh ref data
+        switch (data.entity) {
+          case "Acc":
+            this.fetchAccs();
+            break;
+          case "Vat":
+            this.fetchVats();
+            break;
+          case "Conf":
+            this.fetchConfig();
+            break;
+        }
       }
     });
-    this.fetchConfig()
-    this.fetchAccs()
-    this.fetchVats()
+    this.fetchConfig();
+    this.fetchAccs();
+    this.fetchVats();
   }
 };
 </script>
 
 <style>
-  .v-label, .v-text-field input {
-    font-size: 0.9em;
-  }
+.v-label,
+.v-text-field input {
+  font-size: 0.9em;
+}
 </style>

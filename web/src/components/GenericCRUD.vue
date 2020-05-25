@@ -33,18 +33,6 @@ export default {
     async feedback(data) {
       console.log("GC.feedback", data);
       appBus.$emit("feedback", data);
-      if (data.operation.match(/C|U|D/))
-        switch (data.entity) {
-          case "Acc":
-            await this.fetchAccs();
-            break;
-          case "Vat":
-            await this.fetchVats();
-            break;
-          case "Conf":
-            await this.fetchConfig();
-            break;
-        }
     }
   },
   components: {
