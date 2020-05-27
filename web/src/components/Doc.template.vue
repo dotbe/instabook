@@ -49,18 +49,18 @@
               item-text="label"
               :rules="[v => !!v || 'Required']"
               @blur="masterAccIdChecker()"
-              @keyup="searchedInput=searchInput"
+              @keyup="searchedInput=doc.searchInput"
               :prepend-icon="metadata.icons.people"
               :label="master.accLabel"
               class="title"
-              :search-input.sync="searchInput"
+              :search-input.sync="doc.searchInput"
               :no-data-text="noAccountText"
             />
           </td>
           <td>
             <!-- <v-btn @click="addAccount()" icon color="primary" v-if="master.is" tabindex="-1">
               <v-icon>{{metadata.icons.people}}-plus</v-icon>
-            </v-btn> -->
+            </v-btn>-->
           </td>
         </tr>
         <tr>
@@ -110,15 +110,19 @@
               <b>{{line.i}}.</b>
             </td>
             <td>
-              <v-combobox
+              <v-autocomplete
                 v-model="line.accId"
                 ref="accId"
+                :key="componentKey"
                 :items="accs.all"
                 item-text="label"
                 item-value="id"
                 @blur="accIdChecker(index)"
                 @keyup.enter="save()"
+                @keyup="searchedInput=line.searchInput"
                 dense
+                :search-input.sync="line.searchInput"
+                :no-data-text="noAccountText"
               />
             </td>
             <td class="num">
@@ -185,7 +189,10 @@
     <MagicGrid :config="metadata.acc" @feedback="feedback" :showGrid="false" ref="magic" />
 
     <hr class="mt-10" />
-    <hr />
+    <h2>Balance</h2>
+    {{balance}}
+    <h2>validForm</h2>
+    {{validForm}}
     <h2>doc</h2>
     {{doc}}
     <hr />
@@ -195,7 +202,7 @@
     <h2>filter</h2>
     {{filter}}
     <hr />
-    <h2>confif</h2>
+    <h2>config</h2>
     {{config}}
     <hr />
     <h2>lastdoc</h2>

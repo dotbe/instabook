@@ -16,7 +16,6 @@ export default {
       doc: {},
       lastDoc: {},
       addedAccIndex: null, //-1 = master
-      searchInput: null,
       searchedInput: null,
       componentKey: 0
     };
@@ -51,17 +50,17 @@ export default {
     ...mapGetters(["metadata", "config", "accs"]),
     balance() {
       if (!this.validForm) return false;
-      console.log("master num", MagicTools.isNumber(this.doc.masterAmount));
       if (this.master.is && !MagicTools.toNumber(this.doc.masterAmount))
         return false;
       let a = this.master.sign * MagicTools.toNumber(this.doc.masterAmount);
+      console.log("balance", a);
       let d = 0;
       let c = 0;
       this.doc.lines.forEach(line => {
         d += MagicTools.toNumber(line.d);
         c += MagicTools.toNumber(line.c);
       });
-      if (d + c == 0) return false;
+      if (a == 0 && d == 0 && c == 0) return false;
       return a + d - c;
     },
     master() {
@@ -90,9 +89,7 @@ export default {
       return master;
     },
     noAccountText() {
-      if (this.searchedInput && this.searchedInput.match(new RegExp("^" + this.master.startWith)))
-        return `Press "Tab" to create "${this.searchedInput}"`;
-      return `Must start with "${this.master.startWith}"`;
+      return `Press "Tab" to create "${this.searchedInput}"`;
     }
   },
   methods: {
@@ -103,7 +100,7 @@ export default {
       this.addedAccIndex = addedAccIndex;
     },
     feedback(payload) {
-      appBus.$emit("feedback", payload);
+      //appBus.$emit("feedback", payload);
       // set the new created account
       if (payload.entity == "Acc" && this.addedAccIndex != null) {
         // master ACC
@@ -113,10 +110,13 @@ export default {
           this.doc.masterAccId = payload.data.id;
           this.masterAccIdChecker();
           this.$refs.masterAmount.focus();
-          this.err("masterAmount")
+          this.err("masterAmount");
         } else {
           // line ACC
+          this.doc.lines[this.addedAccIndex].accId = payload.data.id;
           this.accIdChecker(this.addedAccIndex);
+          this.$refs.masterAmount.focus();
+          this.err("accId", false, this.addedAccIndex);
         }
         this.addedAccIndex = null;
       }
@@ -152,7 +152,8 @@ export default {
         accId: null,
         d: this.master.zero,
         c: this.master.zero,
-        comment: null
+        comment: null,
+        searchInput: null
       });
       if (focus) this.$refs.accId[index].focus();
       if (index < this.doc.lines.length)
@@ -223,26 +224,34 @@ export default {
       // existing account
       if (this.doc.masterAccId != null) return;
       // new wrong account
-      if (
-        this.searchedInput != null &&
-        !this.searchedInput.match(new RegExp("^" + this.master.startWith))
-      ) {
-        this.err("masterAccId", `Must start with "${this.master.startWith}"`);
-        this.doc.masterAccId = null;
-        return;
-      }
+      // if (
+      //   this.searchedInput != null &&
+      //   !this.searchedInput.match(new RegExp("^" + this.master.startWith))
+      // ) {
+      //   this.err("masterAccId", `Must start with "${this.master.startWith}"`);
+      //   this.doc.masterAccId = null;
+      //   return;
+      // }
       // new correct account
       // on added, account is set ... cfr feedback())
       if (this.searchedInput != null) {
+        let prefixed = this.searchedInput.match(
+          new RegExp("^" + this.master.startWith)
+        );
         this.addAccount(
           {
-            code: this.searchedInput,
-            name: this.searchedInput.substring(this.master.startWith.length)
+            code: prefixed
+              ? this.searchedInput
+              : this.master.startWith + this.searchedInput,
+            name: prefixed
+              ? this.searchedInput.substring(this.master.startWith.length)
+              : this.searchedInput
           },
           -1
         );
-        this.searchedInput = null;
       }
+      this.searchedInput = null;
+      this.searchInput = null;
     },
     masterAmountChecker() {
       let a = MagicTools.toNumber(this.doc.masterAmount, 2, true);
@@ -251,9 +260,13 @@ export default {
         this.doc.masterAmount = MagicTools.formatNumber(a);
     },
     accIdChecker(i) {
-      if (!this.doc.lines[i].accId.id) {
+      if (!this.doc.lines[i].accId && this.searchedInput != null) {
         // new account... on added, account is set ... cfr feedback())
-        this.addAccount({ code: this.doc.lines[i] }, i);
+        this.addAccount(
+          { code: this.searchedInput, name: this.searchedInput },
+          i
+        );
+        this.searchedInput = null;
         return; // continue check after account is added
       }
       // set master comment
@@ -285,7 +298,6 @@ export default {
         if (this.balance > 0)
           this.doc.lines[i].c = MagicTools.formatNumber(this.balance);
         else this.doc.lines[i].d = MagicTools.formatNumber(-this.balance);
-        this.balance = 0;
       }
     },
     dChecker(i, src = "d") {
@@ -336,6 +348,7 @@ export default {
         masterAccId: null,
         masterAmount: 0,
         masterComment: null,
+        searchInput: null,
         lines: []
       };
       this.doc.lines.splice(0, this.doc.lines.length);
