@@ -12,7 +12,7 @@ export default {
   props: ["file", "filter"],
   data() {
     return {
-      validForm: false,
+      validForm: true,
       doc: {},
       lastDoc: {},
       addedAccIndex: null, //-1 = master
@@ -89,15 +89,36 @@ export default {
       return master;
     },
     noAccountText() {
-      return `Press "Tab" to create "${this.searchedInput}"`;
+      return `Press "Alt+n" to create "${this.searchedInput}"`;
     }
   },
   methods: {
     ...mapActions(["addAcc"]),
-    addAccount(account = {}, addedAccIndex) {
-      // dialog of the MagicGrid
-      this.$refs.magic.add(account);
+    addAccount(addedAccIndex) {
+      console.log("addAccount", addedAccIndex);
+      let account = {};
       this.addedAccIndex = addedAccIndex;
+      // dialog of the MagicGrid
+      if (addedAccIndex == -1) {
+        let prefixed = this.searchedInput.match(
+          new RegExp("^" + this.master.startWith)
+        );
+        account = {
+          code: prefixed
+            ? this.searchedInput
+            : this.master.startWith + this.searchedInput,
+          name: prefixed
+            ? this.searchedInput.substring(this.master.startWith.length)
+            : this.searchedInput
+        };
+      } else {
+        account = {
+          code: this.searchedInput,
+          name: this.searchedInput
+        };
+        this.doc.lines[addedAccIndex].accId = null;
+      }
+      this.$refs.magic.add(account);
     },
     feedback(payload) {
       //appBus.$emit("feedback", payload);
@@ -221,54 +242,33 @@ export default {
         );
     },
     masterAccIdChecker() {
-      // existing account
-      if (this.doc.masterAccId != null) return;
-      // new wrong account
-      // if (
-      //   this.searchedInput != null &&
-      //   !this.searchedInput.match(new RegExp("^" + this.master.startWith))
-      // ) {
-      //   this.err("masterAccId", `Must start with "${this.master.startWith}"`);
-      //   this.doc.masterAccId = null;
-      //   return;
-      // }
-      // new correct account
-      // on added, account is set ... cfr feedback())
-      if (this.searchedInput != null) {
-        let prefixed = this.searchedInput.match(
-          new RegExp("^" + this.master.startWith)
-        );
-        this.addAccount(
-          {
-            code: prefixed
-              ? this.searchedInput
-              : this.master.startWith + this.searchedInput,
-            name: prefixed
-              ? this.searchedInput.substring(this.master.startWith.length)
-              : this.searchedInput
-          },
-          -1
-        );
+      // set default account
+      if (this.doc.masterAccId == null) return;
+      let masterAcc = this.accs.all.find(el => el.id == this.doc.masterAccId);
+      if (masterAcc.defaultAcc && this.doc.lines[0].accId == null) {
+        this.doc.lines[0].accId = masterAcc.defaultAcc.id;
+        this.accIdChecker(0);
       }
-      this.searchedInput = null;
-      this.searchInput = null;
     },
     masterAmountChecker() {
       let a = MagicTools.toNumber(this.doc.masterAmount, 2, true);
       this.err("masterAmount", "Invalid amount", 0, a == null || a <= 0);
       if ((a || a == 0) && a >= 0)
         this.doc.masterAmount = MagicTools.formatNumber(a);
+      if (
+        this.doc.lines[0].d == this.master.zero &&
+        this.doc.lines[0].c == this.master.zero &&
+        this.balance
+      ) {
+        if (this.balance > 0)
+          this.doc.lines[0].c = MagicTools.formatNumber(this.balance);
+        else this.doc.lines[0].d = MagicTools.formatNumber(-this.balance);
+      }
+    },
+    accKeyUp(el, searchInput) {
+      console.log("AccKeyUp", el, searchInput);
     },
     accIdChecker(i) {
-      if (!this.doc.lines[i].accId && this.searchedInput != null) {
-        // new account... on added, account is set ... cfr feedback())
-        this.addAccount(
-          { code: this.searchedInput, name: this.searchedInput },
-          i
-        );
-        this.searchedInput = null;
-        return; // continue check after account is added
-      }
       // set master comment
       if (!this.doc.masterComment && this.doc.lines[i].accId) {
         this.doc.masterComment = this.accs.all.find(
@@ -370,6 +370,8 @@ export default {
           this.doc.lines.forEach(el => {
             el.d = el.amount > 0 ? el.amount : 0;
             el.c = el.amount < 0 ? el.amount : 0;
+            el.d = MagicTools.formatNumber(el.d);
+            el.c = MagicTools.formatNumber(el.c);
           });
           if (this.master.is) {
             this.doc.masterAccId = this.doc.lines[0].accId;

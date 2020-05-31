@@ -24,6 +24,7 @@
               :prepend-icon="metadata.icons.ref"
               :rules="[v => !!v || 'Required']"
               @blur="refChecker()"
+              @keyup.enter="save()"
             />
           </td>
           <td class="date">
@@ -35,6 +36,7 @@
               :prepend-icon="metadata.icons.date"
               :rules="[v => !!v || 'Required']"
               @blur="dateChecker()"
+              @keyup.enter="save()"
             />
           </td>
           <td class="acc">
@@ -49,6 +51,8 @@
               item-text="label"
               :rules="[v => !!v || 'Required']"
               @blur="masterAccIdChecker()"
+              @keyup.alt.78="addAccount(-1)"
+              @keyup.enter="save()"
               @keyup="searchedInput=doc.searchInput"
               :prepend-icon="metadata.icons.people"
               :label="master.accLabel"
@@ -74,6 +78,7 @@
               :prepend-icon="metadata.icons.amount"
               :rules="[v => (!!v && v != master.zero )|| 'Required']"
               @blur="masterAmountChecker()"
+              @keyup.enter="save()"
             />
           </td>
           <td colspan="3">
@@ -84,6 +89,7 @@
               v-model="doc.masterComment"
               label="Comment"
               :prepend-icon="metadata.icons.comment"
+              @keyup.enter="save()"
             />
           </td>
         </tr>
@@ -118,8 +124,9 @@
                 item-text="label"
                 item-value="id"
                 @blur="accIdChecker(index)"
+                @keyup.alt.78="addAccount(index)"
                 @keyup.enter="save()"
-                @keyup="searchedInput=line.searchInput"
+                @keyup.exact="searchedInput=line.searchInput"
                 dense
                 :search-input.sync="line.searchInput"
                 :no-data-text="noAccountText"

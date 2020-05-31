@@ -117,6 +117,7 @@ app.get('/api/accs/:id?', (req, res) => {
     new SequelizeHelper(Acc).restFind(req, res)
 })
 app.post('/api/accs', (req, res) => {
+    if(req.body.code)req.body.code = req.body.code.toUpperCase()
     new SequelizeHelper(Acc).restCreate(req, res)
 })
 app.put('/api/accs/:id?', (req, res) => {

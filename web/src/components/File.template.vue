@@ -18,7 +18,7 @@
           </v-btn-toggle>
           <!-- DATE -->
           <v-card flat>
-            <div class="subtitle-1">Date</div>
+            <div class="subtitle-1">Period</div>
             <v-btn-toggle v-model="filter.period" @change="changeDates" class="mb-3">
               <v-btn value="ty" width="10px">Y</v-btn>
               <v-btn value="ly">Y-</v-btn>

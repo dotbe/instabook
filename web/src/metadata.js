@@ -76,7 +76,7 @@ let metadata = {
                 required: true,
                 max: 20,
                 min: 6,
-                regexp: [/^\S*$/, "No space!"],
+                regexp: [/^\d{3,}\S*$/, "Start with 3 digits, no space!"],
             },
             name: {
                 text: 'Name',
